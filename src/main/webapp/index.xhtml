@@ -1,0 +1,35 @@
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:composition template="WEB-INF/templates/layout.xhtml">
+        <ui:param name="title" value="Select Repository"></ui:param>
+        <ui:param name="path" value="Select Repository"></ui:param>
+        <ui:define name = "content">
+            <form class="mainbox" style="text-align: center !important;">
+                <h3>IIIF Workbench</h3>
+                <c:set var="repos" value="#{repo.repos}" scope="request" />
+                <c:if test="#{not empty repos}">
+                    <p>
+                        Select Github Project:
+                    </p>
+                    <div class="oauth_option">
+                        <c:forEach var="repo" items="#{repo.repos}">
+                            <a class="btn btn-lg btn-google btn-block btn-outline" href=""><h:outputText value="#{repo.name}" escape="false" /></a>
+                        </c:forEach>
+                    </div>
+                    <p>
+                        <a class="" href="">Add another project?</a>
+                    </p>
+                </c:if>
+                <c:if test="#{empty repos}">
+                    <p>No projects found.</p>
+                    <a class="btn btn-lg btn-google btn-block btn-outline" href="">Create Project</a>
+                </c:if>
+            </form>
+        </ui:define>
+    </ui:composition>
+</html>

@@ -1,0 +1,26 @@
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:composition template="WEB-INF/templates/layout.xhtml">
+        <ui:param name="title" value="Login"></ui:param>
+        <ui:param name="path" value="login"></ui:param>
+        <ui:define name = "content">
+            <form class="mainbox" style="text-align: center !important;">
+                <h3>IIIF Workbench</h3>
+                <p>
+                    Upload images and Manifests to Github to get access to free Web Hosting using GitHub pages.
+                </p>
+                <div class="oauth_option">
+                    <a class="btn btn-lg btn-google btn-block btn-outline" href="login?type=github"><img src="images/GitHub-logo.png" height="25px"/>Login with GitHub</a>
+                </div>
+                <p>
+                    Don't have a GitHub account? <a class="" href="https://github.com/join">Sign up here</a>
+                </p>
+            </form>
+        </ui:define>
+    </ui:composition>
+</html>
