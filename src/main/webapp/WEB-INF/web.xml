@@ -15,7 +15,7 @@
         <filter-name>AuthFilter</filter-name>
         <!-- can't use wild card as this picks up css -->
         <url-pattern>/</url-pattern>
-        <url-pattern>index.xhtml</url-pattern>
+        <url-pattern>/index.xhtml</url-pattern>
         <url-pattern>/project/*</url-pattern>
         <url-pattern>/projects/*</url-pattern>
         <url-pattern>/iiif/*</url-pattern>
