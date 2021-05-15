@@ -197,7 +197,7 @@ public class Repo extends Session {
                 }
             } catch (IOException tExcpt) {    
                 System.err.println("Failed to retrieve /manifests/collections.json so creating new"); 
-                tExcpt.printStackTrace();
+                //tExcpt.printStackTrace();
                 // create new manifest
                 tManifests = Collection.createEmpty(tPath.getWeb(), "All manifests loaded in " + pRepo.generateId() + " project");
             }
@@ -220,7 +220,13 @@ public class Repo extends Session {
     }
 
     public ContentResponse uploadFile(final RepositoryPath pPath, final String pContents) throws IOException {
-        return uploadFile(pPath, pContents, null);
+        try {
+            return uploadFile(pPath, pContents, null);
+        } catch (IOException tExcpt) {
+            System.err.println("Failed to load " + pPath + " due to " + tExcpt);
+            tExcpt.printStackTrace();
+            throw tExcpt;
+        }
     }
     // Sha required if its an update
     public ContentResponse uploadFile(final RepositoryPath pPath, final String pContents, final String pSHA) throws IOException {

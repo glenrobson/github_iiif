@@ -95,6 +95,11 @@ public class RepositoryPath {
         return tURL;
     }
 
+    public String toString() {
+        return _repo.generateId() + "/" + _path;
+    }
+
+
     public void setContents(final List<RepositoryContents> pContents) {
         _contents = pContents;
         if (_contents.size() == 1) {

@@ -77,7 +77,7 @@ public class JsonUpload extends JSONServlet {
         Repo tRepo = new Repo();
         tRepo.setSession(pReq.getSession());
         Repository tRepoObj = tRepo.getRepo(tRequestURI[tRequestURI.length - 2]);
-        RepositoryPath tPath = new RepositoryPath(tRepoObj, tType + "/" + tName);
+        RepositoryPath tPath = new RepositoryPath(tRepoObj, "/" + tType + "/" + tName);
 
         Part tFilePart = pReq.getPart("file");
         long fileSize = tFilePart.getSize();
