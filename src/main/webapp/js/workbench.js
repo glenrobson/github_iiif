@@ -96,7 +96,7 @@ function createProject() {
             $("#scroll").mCustomScrollbar('update');
             clearLoading("createProjectButton", "Create");
             $('#createProject').modal('toggle');
-            window.location.href = "/projects/" + data.name;
+            window.location.href = "/projects/" + data.name + "/images";
         },
         error: function(data) {
             clearLoading("createProjectButton", "Create");
