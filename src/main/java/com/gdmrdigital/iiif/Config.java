@@ -6,6 +6,8 @@ import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.apis.GitHubApi;
 
+import java.io.File;
+
 public class Config {
 
     public Config() {
@@ -59,6 +61,16 @@ public class Config {
 				 tBaseURLStr = tBaseURLStr.replaceAll("/$","");
 			}
 			return tBaseURLStr;
+        }
+    }
+
+    public File getRepoTemplate() {
+        String tEnvDetails = getConfig("repo_template");
+        if (tEnvDetails == null || tEnvDetails.isEmpty()) {
+            // Running locally
+            return new File("docs");
+        } else {
+            return new File(tEnvDetails);
         }
     }
 

@@ -6,6 +6,7 @@ import com.gdmrdigital.iiif.model.github.ExtendedContentService.ContentResponse;
 import com.gdmrdigital.iiif.model.github.RepositoryPath;
 import com.gdmrdigital.iiif.model.iiif.Manifest;
 import com.gdmrdigital.iiif.model.iiif.Collection;
+import com.gdmrdigital.iiif.Config;
 
 import com.github.jsonldjava.utils.JsonUtils;
 
@@ -263,7 +264,7 @@ public class Repo extends Session {
         Repository tLocalCopy = tService.createRepository(tNewRepo);
         tService.setTopic(tLocalCopy, "iiif-training-workbench");
         
-        uploadDirectory(tLocalCopy, "/", new File("docs"));
+        uploadDirectory(tLocalCopy, "/", Config.getConfig().getRepoTemplate());
 
         tService.createPages(tLocalCopy, tLocalCopy.getDefaultBranch(), "/");
         return tLocalCopy;
