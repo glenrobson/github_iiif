@@ -1,0 +1,89 @@
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:composition template="WEB-INF/templates/layout.xhtml">
+        <ui:param name="title" value="#{tRepoPath.repo.name}"></ui:param>
+        <ui:param name="project" value="#{repo.processPath(name).repo.name}"></ui:param>
+        <ui:param name="path" value=""></ui:param>
+        <ui:define name = "content">
+            <c:set var="tRepoPath" value="#{repo.processPath(name)}" scope="request" />
+            <main xmlns="http://www.w3.org/1999/xhtml" tabindex="-1" role="main" id="content" class="bs-docs-masthead">
+                <div class="container">
+                    
+                    <h1>Files</h1>
+                    <c:if test="#{tRepoPath.directory}">
+                        <p>The files section of the workbench allows you to edit the Website files to show your manifests and images. To get started select the new drop down and choose a template to work with.</p>
+                        <div class="list-group">
+                            <div class="list-group-item list-group-item-action footer">
+                                <a href="#{tRepoPath.repo.htmlUrl}/tree/main/#{tRepoPath.path}" title="View on GitHub"><i class="fab fa-github"></i></a>
+                                <c:if test="#{not empty tRepoPath.web}">
+                                    <a href="#{tRepoPath.web}" title="View web version"><i class="fas fa-eye"></i></a>
+                                </c:if>    
+                            </div>
+                            <div class="list-group-item list-group-item-action active">
+                                <span id="breadcrump">
+                                    <a href="/projects/#{tRepoPath.repo.name}" class="breadcrump"><h:outputText value="#{tRepoPath.repo.name}" /></a> / <a href="/projects/#{tRepoPath.repo.name}/#{tRepoPath.path}"><h:outputText value="#{tRepoPath.path}" /></a>
+                                </span>
+                                <button type="button" class="btn btn-light">New</button>
+                            </div>
+                            
+                            <c:forEach var="item" items="#{tRepoPath.directories}">
+                                <a type="button" class="list-group-item list-group-item-action" href="/projects/#{name}/#{item.name}">
+                                    <i class="fas fa-folder fa-lg"> </i> 
+                                    <span class="filename"><h:outputText value="#{item.name}" /></span>
+                                </a>
+                            </c:forEach>
+                            <c:forEach var="item" items="#{tRepoPath.files}">
+                                <a type="button" class="list-group-item list-group-item-action" href="/projects/#{name}/#{item.name}">
+                                    <i class="fa fa-file-o fa-lg"> </i> 
+                                    <span class="filename"><h:outputText value="#{item.name}" /></span>
+                                </a>
+                            </c:forEach>
+                            
+                        </div>
+                    </c:if>    
+                    <c:if test="#{not tRepoPath.directory}">
+                        <div class="list-group">
+                            <div class="list-group-item list-group-item-action footer">
+                                <a href="#{tRepoPath.repo.htmlUrl}/tree/main/#{tRepoPath.path}" title="View on GitHub"><i class="fab fa-github"></i></a>
+                                <c:if test="#{not empty tRepoPath.web}">
+                                    <a href="#{tRepoPath.web}" title="View web version"><i class="fas fa-eye"></i></a>
+                                </c:if>    
+                            </div>
+                            <div class="list-group-item list-group-item-action active">
+                                <span id="breadcrump">
+                                    <a href="/projects/#{tRepoPath.repo.name}" class="breadcrump"><h:outputText value="#{tRepoPath.repo.name}" /></a> / <a href="/projects/#{tRepoPath.repo.name}/#{tRepoPath.path}"><h:outputText value="#{tRepoPath.path}" /></a>
+                                </span>
+                                <button type="button" class="btn btn-light">New</button>
+                            </div>
+
+                            <div id="editor" class="list-group-item ">
+                                <h:outputText value="#{tRepoPath.content}" />
+                            </div>
+                        </div>
+                        <script src="https://pagecdn.io/lib/ace/1.4.12/ace.min.js" crossorigin="anonymous" integrity="sha256-T5QdmsCQO5z8tBAXMrCZ4f3RX8wVdiA0Fu17FGnU1vU=" ></script>
+                        <script>
+                            ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.12/')
+                            var editor = ace.edit("editor");
+                            editor.setReadOnly(true);
+                            editor.setTheme("ace/theme/github");
+                            <c:if test='#{tRepoPath.extension.equals("js")}'>
+                                editor.session.setMode("ace/mode/javascript");
+                            </c:if>    
+                            <c:if test='#{tRepoPath.extension.equals("md")}'>
+                                editor.session.setMode("ace/mode/markdown");
+                            </c:if>    
+                            <c:if test='#{tRepoPath.extension.equals("yml")}'>
+                                editor.session.setMode("ace/mode/yaml");
+                            </c:if>    
+                        </script>
+                    </c:if>    
+                </div>
+            </main>
+        </ui:define>
+    </ui:composition>
+</html>

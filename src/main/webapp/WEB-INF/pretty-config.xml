@@ -1,0 +1,18 @@
+<pretty-config xmlns="http://ocpsoft.org/schema/rewrite-config-prettyfaces" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://ocpsoft.org/schema/rewrite-config-prettyfaces
+                      http://ocpsoft.org/xml/ns/prettyfaces/rewrite-config-prettyfaces.xsd">
+
+    <url-mapping id="manifests">
+		<pattern value="/projects/#{project}/manifests" />
+		<view-id value="/manifests.xhtml" />
+	</url-mapping>
+	<url-mapping id="images">
+		<pattern value="/projects/#{project}/images" />
+		<view-id value="/images.xhtml" />
+	</url-mapping>
+	<url-mapping id="project">
+		<pattern value="/projects/#{/.*/name}" />
+		<view-id value="/projects.xhtml" />
+	</url-mapping>
+</pretty-config>

@@ -1,0 +1,55 @@
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:composition template="WEB-INF/templates/layout.xhtml">
+        <ui:param name="title" value="#{tRepoPath.repo.name}"></ui:param>
+        <ui:param name="project" value="#{project}"></ui:param>
+        <ui:param name="path" value=""></ui:param>
+        <ui:define name = "content">
+            <main xmlns="http://www.w3.org/1999/xhtml" tabindex="-1" role="main" id="content" class="bs-docs-masthead">
+                <div class="container">
+                    <c:set var="pathLoc" value="#{project}/images" scope="request" />
+                    <c:set var="tRepoPath" value='#{repo.processPath(pathLoc)}' scope="request" />
+                    
+                    <h1>Images</h1>
+                    <p>Welcome to the images part of the IIIF Workbench. From here you can upload images to create IIIF tiles in GitHub. Upload an image to get started.</p>
+                    <div class="list-group">
+                        <div class="list-group-item list-group-item-action footer">
+                            <a href="#{tRepoPath.repo.htmlUrl}/tree/main/#{tRepoPath.path}" title="View on GitHub"><i class="fab fa-github"></i></a>
+                            <c:if test="#{not empty tRepoPath.web}">
+                                <a href="#{tRepoPath.web}" title="View web version"><i class="fas fa-eye"></i></a>
+                            </c:if>    
+                        </div>
+                        <div class="list-group-item list-group-item-action active">
+                            <span id="breadcrump">
+                                <a href="/projects/#{tRepoPath.repo.name}" class="breadcrump"><h:outputText value="#{tRepoPath.repo.name}" /></a> / <a href="/projects/#{tRepoPath.repo.name}/#{tRepoPath.path}"><h:outputText value="#{tRepoPath.path}" /></a>
+                            </span>
+                            <button type="button" class="btn btn-light" data-toggle="modal" data-target="#imagesUpload">Upload</button>
+                        </div>
+                        <div id="images" class="card-deck">
+                            <!--<c:set var="images" value="#{tRepoPath.images}" scope="request" />
+                            <c:if test="#{empty images}">
+                                No images found. Upload one by clicking the upload button. 
+                            </c:if>    
+                            <c:if test="#{not empty images}">
+                                <c:forEach var="item" items="">
+                                </c:forEach>
+                            </c:if>  -->  
+                        </div>
+                        <script src="/js/images.js"></script>
+                        <script>
+                            <!-- Need to call http://localhost:8080/iiif-images/test2/manifest.json to get images to display-->
+                            showImageJson('#{tRepoPath.repo.name}');
+                        </script>
+                    </div>
+                </div>
+            </main>
+            <ui:include src="WEB-INF/templates/dialogues/uploadImage.xhtml"/>
+            <!-- need to repopulate view with returned manifest from upload -->
+       </ui:define>            
+    </ui:composition>
+</html>

@@ -1,0 +1,95 @@
+ <!-- Modal -->
+<div class="modal fade" id="imagesUpload" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"
+        xmlns:c="http://java.sun.com/jsp/jstl/core"
+        xmlns="http://www.w3.org/1999/xhtml">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form id="imageUpload" action="/tiler/#{project}" enctype="multipart/form-data" method="post">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Upload Image</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true"><i class="far fa-window-close"></i></span>
+        </button>
+      </div>
+      <div class="modal-body">
+              <input name="repo" type="hidden" id="repo" value="#{project}"/>
+              <div class="form-group">
+                  <label for="formFile" >Select image file:</label>
+
+                  <input name="file" type="file" class="form-control-file" id="imageFile" accept="#{imageUtils.supportedTypes}" onchange="fileSelected('imageFile')" />
+              </div>
+              <div class="form-group row" style="display:none">
+                  <label for="formFile" class="col-sm-6 col-form-label">Name:</label>
+                  <div class="col">
+                      <input type="text" class="form-control inline-form-el" id="name" name="id"  aria-describedby="nameHelp"/>
+                  </div>
+                  <div class="">
+                      <small id="nameHelp" class="col form-text text-muted">
+                          Note name must not contain spaces, slashes or other non URL safe characters.
+                      </small>
+                  </div>
+              </div>
+              <div class="form-group row">
+                  <label for="version"  class="col-sm-6 col-form-label">IIIF Image Version</label>
+                  <div class="col">
+                      <select name="version" class="form-control inline-form-el" id="version" style="">
+                          <option>2.x</option>
+                          <option>3.x</option>
+                      </select>
+                  </div>
+              </div>
+              <div class="alert alert-primary" style="display: none" role="alert" id="image_messages">
+              </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" id="upload_image" class="btn btn-primary">Upload</button>
+      </div>
+      </form>
+      <script>     
+            var button = document.getElementById('upload_image');
+
+            function loadImages(data) {
+                $('#imagesUpload').modal('toggle');
+                showImages(data);
+            }
+
+            var form = document.forms.namedItem("imageUpload");
+            form.addEventListener('submit', function(ev) {
+                var original = setLoading("upload_image","Uploading");
+
+                data = new FormData(form);
+
+                var oReq = new XMLHttpRequest();
+                oReq.open("POST", form.action, true);
+                oReq.onload = function(oEvent) {
+                    clearLoading("upload_image", original);
+                    if (oReq.status == 200) {
+                        loadImages(JSON.parse(oEvent.target.responseText));
+                    } else {
+                        if (data.status === 500) {
+                            showMessage("image_messages", "error", data.statusText);
+                        } else {
+                            showMessage("image_messages", "error", data.message);
+                        }
+                    }
+                };
+
+                oReq.send(data);
+                ev.preventDefault();
+            }, false);
+                        
+           /* button.onclick = function (event) {
+                ajaxForm({
+                    'action': {
+                        'button': 'upload_image',
+                        'verb': 'Uploading'
+                    },
+                    'form':'imageUpload',
+                    'success':loadImages
+                });
+            }*/
+        </script>
+    </div>
+  </div>
+</div>

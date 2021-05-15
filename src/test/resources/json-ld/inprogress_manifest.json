@@ -1,0 +1,107 @@
+{
+
+  * "id": "https://iiif-test.github.io/test2/images/manifest.json" <https://iiif-test.github.io/test2/images/manifest.json>,
+  * "label": {
+      o "en": [
+          + "All images loaded in iiif-test/test2 project"
+        ]
+    },
+  * "type": "Manifest",
+  * "@context": "http://iiif.io/api/presentation/3/context.json" <http://iiif.io/api/presentation/3/context.json>,
+  * "items": [
+      o {
+          + "id": "https://iiif-test.github.io/test2/images/IMG_8765/canvas/" <https://iiif-test.github.io/test2/images/IMG_8765/canvas/>,
+          + "label": {
+              # "none": [
+                  * "IMG_8765"
+                ]
+            },
+          + "type": "Canvas",
+          + "proccess_id": "aafb5acb-87e6-4a88-9d94-e53df3fcdc0b"
+        },
+      o {
+          + "width": 4032,
+          + "id": "https://iiif-test.github.io/test2/images/images/IMG_8759/canvas/" <https://iiif-test.github.io/test2/images/images/IMG_8759/canvas/>,
+          + "label": {
+              # "none": [
+                  * "IMG_8759"
+                ]
+            },
+          + "type": "Canvas",
+          + "items": [
+              # {
+                  * "id": "https://iiif-test.github.io/test2/images/images/IMG_8759/AnnoPage/" <https://iiif-test.github.io/test2/images/images/IMG_8759/AnnoPage/>,
+                  * "type": "AnnotationPage",
+                  * "items": [
+                      o {
+                          + "motivation": "Painting",
+                          + "id": "https://iiif-test.github.io/test2/images/images/IMG_8759/annotation/" <https://iiif-test.github.io/test2/images/images/IMG_8759/annotation/>,
+                          + "type": "Annotation",
+                          + "body": {
+                              # "service": [
+                                  * {
+                                      o "tiles": [
+                                          + {
+                                              # "scaleFactors": [
+                                                  * 32,
+                                                  * 16,
+                                                  * 8,
+                                                  * 4,
+                                                  * 2,
+                                                  * 1
+                                                ],
+                                              # "width": 1024,
+                                              # "height": 1024
+                                            }
+                                        ],
+                                      o "protocol": "http://iiif.io/api/image" <http://iiif.io/api/image>,
+                                      o "sizes": [
+                                          + {
+                                              # "width": 126,
+                                              # "height": 95
+                                            },
+                                          + {
+                                              # "width": 252,
+                                              # "height": 189
+                                            },
+                                          + {
+                                              # "width": 504,
+                                              # "height": 378
+                                            },
+                                          + {
+                                              # "width": 1008,
+                                              # "height": 756
+                                            },
+                                          + {
+                                              # "width": 2016,
+                                              # "height": 1512
+                                            },
+                                          + {
+                                              # "width": 4032,
+                                              # "height": 3024
+                                            }
+                                        ],
+                                      o "profile": "http://iiif.io/api/image/2/level0.json" <http://iiif.io/api/image/2/level0.json>,
+                                      o "width": 4032,
+                                      o "@id": "https://iiif-test.github.io/test2/images/IMG_8759" <https://iiif-test.github.io/test2/images/IMG_8759>,
+                                      o "@type": "ImageService2",
+                                      o "@context": "http://iiif.io/api/image/2/context.json" <http://iiif.io/api/image/2/context.json>,
+                                      o "height": 3024
+                                    }
+                                ],
+                              # "format": "image/jpeg",
+                              # "width": 4032,
+                              # "id": "https://iiif-test.github.io/test2/images/IMG_8759/full/full/0/default.jpg" <https://iiif-test.github.io/test2/images/IMG_8759/full/full/0/default.jpg>,
+                              # "type": "Image",
+                              # "height": 3024
+                            },
+                          + "target": "https://iiif-test.github.io/test2/images/images/IMG_8759/canvas/" <https://iiif-test.github.io/test2/images/images/IMG_8759/canvas/>
+                        }
+                    ]
+                }
+            ],
+          + "height": 3024
+        }
+    ]
+
+}

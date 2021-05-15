@@ -7,29 +7,33 @@
 
     <ui:composition template="WEB-INF/templates/layout.xhtml">
         <ui:param name="title" value="Select Repository"></ui:param>
+        <ui:param name="project" value="#{tRepoPath.repo.name}"></ui:param>
         <ui:param name="path" value="Select Repository"></ui:param>
         <ui:define name = "content">
             <form class="mainbox" style="text-align: center !important;">
                 <h3>IIIF Workbench</h3>
+                <p>Welcome to the IIIF Workbench. To get started select or create a project. This will create a repository on <a href="https://github.com">GitHub</a> and give you a place to store your images, manifests and website files.</p>
                 <c:set var="repos" value="#{repo.repos}" scope="request" />
                 <c:if test="#{not empty repos}">
                     <p>
-                        Select Github Project:
+                        Select project:
                     </p>
                     <div class="oauth_option">
                         <c:forEach var="repo" items="#{repo.repos}">
-                            <a class="btn btn-lg btn-google btn-block btn-outline" href=""><h:outputText value="#{repo.name}" escape="false" /></a>
+                            <a class="btn btn-lg btn-google btn-block btn-outline" href="/projects/#{repo.name}/images"><h:outputText value="#{repo.name}" escape="false" /></a>
                         </c:forEach>
                     </div>
                     <p>
-                        <a class="" href="">Add another project?</a>
+                        <button type="button" class="btn btn-primary" onclick="return showProjectForm();">Add another project</button>
                     </p>
                 </c:if>
                 <c:if test="#{empty repos}">
                     <p>No projects found.</p>
-                    <a class="btn btn-lg btn-google btn-block btn-outline" href="">Create Project</a>
+                    <button type="button" class="btn btn-primary" onclick="return showProjectForm();">Create Project</button>
+
                 </c:if>
             </form>
+            <ui:include src="WEB-INF/templates/dialogues/createProject.xhtml"/>
         </ui:define>
     </ui:composition>
 </html>

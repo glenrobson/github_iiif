@@ -7,6 +7,13 @@
   <version>0.1</version>
   <name>github_iiif Maven Webapp</name>
   <url>http://maven.apache.org</url>
+  <repositories>
+    <repository>
+        <id>eclipse</id>
+        <name>eclipse</name>
+        <url>https://repo.eclipse.org/content/groups/releases/</url>
+    </repository>
+</repositories>
   <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -37,19 +44,49 @@
             <version>${jsf.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.mylyn.github</groupId>
+            <artifactId>org.eclipse.egit.github.core</artifactId>
+            <version>5.10.0.202012080955-r</version>
+        </dependency>
+       <!-- <dependency>
           <groupId>org.eclipse.mylyn.github</groupId>
           <artifactId>org.eclipse.egit.github.core</artifactId>
           <version>2.1.5</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.github.scribejava</groupId>
             <artifactId>scribejava-apis</artifactId>
             <version>7.1.1</version>
         </dependency>
         <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.6</version>
+        </dependency>
+        <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
             <version>1.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ocpsoft.rewrite</groupId>
+            <artifactId>rewrite-servlet</artifactId>
+            <version>3.4.4.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ocpsoft.rewrite</groupId>
+            <artifactId>rewrite-config-prettyfaces</artifactId>
+            <version>3.4.4.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jsonld-java</groupId>
+            <artifactId>jsonld-java</artifactId>
+            <version>0.13.2</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.co.gdmrdigital.iiif.image</groupId>
+            <artifactId>iiif-tiler</artifactId>
+            <version>0.9.6</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -76,21 +113,35 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>set-system-properties</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <property>
+                                    <name>java.util.logging.config.file</name>
+                                    <value>${basedir}/src/main/resources/logging.properties</value>
+                                </property>
+                            </properties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>9.4.30.v20200611</version>
                 <configuration>
                     <httpConnector>
-                        <port>8888</port>
+                        <port>8080</port>
                         <idleTimeout>30000</idleTimeout>
                     </httpConnector>
                     <scanIntervalSeconds>1</scanIntervalSeconds>
-                    <properties>
-                        <property>
-                            <name>java.util.logging.config.file</name>
-                            <value>${basedir}/src/main/resources/logging.properties</value>
-                        </property>
-                    </properties>
                 </configuration>
                 <dependencies>
                     <dependency>

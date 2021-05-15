@@ -14,7 +14,13 @@
     <filter-mapping>
         <filter-name>AuthFilter</filter-name>
         <!-- can't use wild card as this picks up css -->
+        <url-pattern>/</url-pattern>
         <url-pattern>index.xhtml</url-pattern>
+        <url-pattern>/project/*</url-pattern>
+        <url-pattern>/projects/*</url-pattern>
+        <url-pattern>/iiif/*</url-pattern>
+        <url-pattern>/status/*</url-pattern>
+        <url-pattern>/upload/*</url-pattern>
     </filter-mapping>
     <!-- Define the JSF servlet (manages the request processing life cycle 
     for JavaServer Faces) -->
@@ -29,6 +35,41 @@
         <servlet-name>faces-servlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>JsonServlet</servlet-name>
+        <servlet-class>com.gdmrdigital.iiif.servlets.JSONServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>JsonServlet</servlet-name>
+        <url-pattern>/iiif/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ProjectsServlet</servlet-name>
+        <servlet-class>com.gdmrdigital.iiif.servlets.Projects</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ProjectsServlet</servlet-name>
+        <url-pattern>/project/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>UploadJsonServlet</servlet-name>
+        <servlet-class>com.gdmrdigital.iiif.servlets.JsonUpload</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UploadJsonServlet</servlet-name>
+        <url-pattern>/upload/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>StatusServlet</servlet-name>
+        <servlet-class>com.gdmrdigital.iiif.servlets.StatusCheck</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>StatusServlet</servlet-name>
+        <url-pattern>/status/*</url-pattern>
+    </servlet-mapping>
+
 
     <servlet>
         <servlet-name>LoginCallback</servlet-name>
@@ -60,4 +101,15 @@
         <servlet-name>Logout</servlet-name>
         <url-pattern>/logout</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UploadImage</servlet-name>
+        <servlet-class>com.gdmrdigital.iiif.servlets.ImageTiler</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UploadImage</servlet-name>
+        <url-pattern>/tiler/*</url-pattern>
+    </servlet-mapping>
+
+    
 </web-app>
