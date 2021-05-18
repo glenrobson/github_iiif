@@ -4,7 +4,7 @@ function showImageJson(project) {
         url: '/iiif/' + project + '/images/manifest.json',
         type: 'GET',
         success: function(data) {
-            showImages(data);
+            showImages(project, data);
         },
         error: function(data) {
             console.log('Failed to get images manifest.json due to ' + data);
@@ -41,7 +41,56 @@ function getImageURL(width, height, canvas) {
     }
 }
 
-function addImage(item, index, images) {
+function monitorImage(details) {
+    /*
+        details.proccess_id 
+        details.status_div
+        details.project
+    */
+    $.ajax({
+        url: '/status/images' + details.project + '/images/manifest.json',
+        type: 'GET',
+        data: {
+            id: details.proccess_id
+        },
+        success: function(data) {
+            let div = document.getElementById(details.status_div);
+            let finished = false;
+            if ("status" in data) {
+                if (data.status === "INIT") {
+                    div.innerHTML = "Processing...";
+                } else if (data.status === "TILE_GENERATION") {
+                    div.innerHTML = "Generating tiles...";
+                } else if (data.status === "GIT_UPLOAD") {
+                    div.innerHTML = "Uploading images to GitHub...";
+                } else if (data.status === "UPDATING_IMG_LIST") {
+                    div.innerHTML = "Updating list of images...";
+                } else if (data.status === "PAGES_UPDATING") {
+                    div.innerHTML = "Publishing files to the web...";
+                } else if (data.status === "FINISHED") {
+                    finished = true;
+                } else if (data.status === "FAILED") {
+                    finished = true;
+                }
+            } else {
+                console.log("Process " + details.proccess_id + " seems to have finished");
+                finished = true;
+            }
+
+            if (!finished) {
+                setTimeout(monitorImage, 4000, details);
+            } else {
+                showImageJson(details.project);
+            }
+        },
+        error: function(data) {
+            console.log('Failed to get images status due to ' + data);
+        }
+    });
+    
+}
+
+function addImage(item, project) {
     var parentDiv = document.getElementById('images');
     /*
         <div class="card" style="width: 18rem;">
@@ -56,32 +105,61 @@ function addImage(item, index, images) {
 
     let inProgress = ('proccess_id' in item);
 
-    let cardDiv = document.createElement("div");
-    cardDiv.id = item.id;
-    cardDiv.className = "card mb-4";
+    let update = false;
+    let cardDiv = null;
+    
     //cardDiv.style.width = "18rem";
     if (document.getElementById(item.id) != null) {
         // already added this image so return
-        return;
+        cardDiv = document.getElementById(item.id);
+        update = true;
+        if (!cardDiv.hasAttribute("data-inprogress") || inProgress) {
+            return;
+        }
+        cardDiv.innerHTML = "";
+        cardDiv.removeAttribute("data-inProgress");
+    } else {
+        cardDiv = document.createElement("div");
+        cardDiv.id = item.id;
+        cardDiv.className = "card mb-4";
+        parentDiv.insertBefore(cardDiv,parentDiv.children[0]);
     }
-    parentDiv.insertBefore(cardDiv,parentDiv.children[0]);
 
     if (inProgress) {
+        cardDiv.setAttribute("data-inProgress", true);
+        let statusDiv = document.createElement("p");
+        statusDiv.id = "image-status-" + item.proccess_id;
+        statusDiv.innerHTML = "Processing...";
+        statusDiv.className = "image-status-text";
+        let details = {
+            proccess_id: item.proccess_id,
+            status_div: statusDiv.id,
+            project: project
+        }
+        setTimeout(monitorImage, 4000, details);
         /* <div class="spinner-border" role="status">
              <span class="sr-only">Loading...</span>
            </div> */
+        let container = document.createElement("div");
+        container.className = "card-img-top"
+        cardDiv.appendChild(container);
+
         let spinner = document.createElement("div");
-        spinner.className = "card-img-top spinner-border";
+        spinner.className = "spinner-border image-spinner";
         spinner.role = "status";
-        cardDiv.appendChild(spinner);
+        container.appendChild(spinner);
         let spinnerText = document.createElement("span");
         spinnerText.className = "sr-only";
         spinnerText.innerHTML = "Loading...";
         spinner.appendChild(spinnerText);
+        
+        container.appendChild(statusDiv);
     } else {
         let img = document.createElement("img");
+        let url = getImageURL(286, 180, item);
+        img.addEventListener('error', updateFailedImage);
         img.className = "card-img-top";
-        img.src = getImageURL(286, 180, item);
+        img.src = url;
         //img.style.width = "286px";</option>
         cardDiv.appendChild(img);
     }
@@ -99,28 +177,54 @@ function addImage(item, index, images) {
     cardText.className = "card-text";
     cardBody.appendChild(cardText);
     if (inProgress) {
-        cardText.innerHTML = "In Progress";
+        //cardText.innerHTML = "In Progress";
     } else {
         let infoJsonURL = "";
+        let fullImageURL = "";
+        let version = "";
         if ('type' in item.items[0].items[0].body.service[0] && item.items[0].items[0].body.service[0].type === 'ImageService3') {
             infoJsonURL = item.items[0].items[0].body.service[0].id + "/info.json";
+            fullImageURL = item.items[0].items[0].body.service[0].id + "/full/max/0/default.jpg";
+            version = "3.0";
         } else {
             infoJsonURL = item.items[0].items[0].body.service[0]["@id"] + "/info.json";
+            fullImageURL = item.items[0].items[0].body.service[0]["@id"] + "/full/full/0/default.jpg";
+            version = "2.0";
         }
-        cardText.innerHTML = "IIIF image url: <a href='" + infoJsonURL + "'>info.json</a>";
 
-        let viewButton = document.createElement('a');
-        viewButton.className = "btn btn-primary";
-        viewButton.href = "#";
-        viewButton.innerHTML = "View Image";
-        cardBody.appendChild(viewButton);
+        let ul = document.createElement('ul');
+        cardText.appendChild(ul);
+
+        let liInfo = document.createElement('li');
+        ul.appendChild(liInfo);
+        liInfo.innerHTML = "<a href='" + infoJsonURL + "' target='_blank'>info.json</a>"
+
+        let liFull = document.createElement('li');
+        ul.appendChild(liFull);
+        liFull.innerHTML = "<a href='" + fullImageURL + "' target='_blank''>Full image</a>"
+
+        let versionNote  = document.createElement('p');
+        versionNote.innerHTML = "Version " + version;
+        cardText.appendChild(versionNote);
     }
 }
 
-function showImages(data) {
+function updateFailedImage(event) {
+    let url = event.srcElement.src;
+    if (url.indexOf('?') != -1) {
+        url = url.split('?')[0];
+    }
+    setTimeout(function () {
+        event.srcElement.src = url + "?" + performance.now();
+    }, 500);
+}
+
+function showImages(project, data) {
     if (data.items.length === 0) {
         showNoImages();
     } else {
-        data.items.forEach(addImage); 
+        data.items.forEach(function(item, index) {
+            addImage(item, project); 
+        });
     }
 }

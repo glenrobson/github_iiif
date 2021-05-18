@@ -19,9 +19,9 @@
                     <p>Welcome to the images part of the IIIF Workbench. From here you can upload images to create IIIF tiles in GitHub. Upload an image to get started.</p>
                     <div class="list-group">
                         <div class="list-group-item list-group-item-action footer">
-                            <a href="#{tRepoPath.repo.htmlUrl}/tree/main/#{tRepoPath.path}" title="View on GitHub"><i class="fab fa-github"></i></a>
+                            <a href="#{tRepoPath.repo.htmlUrl}/tree/main/#{tRepoPath.path}" title="View on GitHub" target='_blank'><i class="fab fa-github"></i></a>
                             <c:if test="#{not empty tRepoPath.web}">
-                                <a href="#{tRepoPath.web}" title="View web version"><i class="fas fa-eye"></i></a>
+                                <a href="https://projectmirador.org/embed/?iiif-content=#{tRepoPath.web}/manifest.json" title="View images in Mirador" target='_blank'><i class="fas fa-eye"></i></a>
                             </c:if>    
                         </div>
                         <div class="list-group-item list-group-item-action active">

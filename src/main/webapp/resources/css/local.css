@@ -423,4 +423,21 @@ ul.nav a.vote {
 .card-img-top {
     width: 100%;
     object-fit: cover;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+    position: relative;
+}
+
+.image-spinner {
+    position: relative;
+    left: 50%;
+    margin-left: -1em;
+    top: 50%;
+}
+
+.image-status-text {
+    position: absolute;
+    margin-left: 1em;
+    bottom: 0px;
+    font-size: 0.75rem;
 }

@@ -51,7 +51,7 @@
 
             function loadImages(data) {
                 $('#imagesUpload').modal('toggle');
-                showImages(data);
+                showImages("#{tRepoPath.repo.name}", data);
             }
 
             var form = document.forms.namedItem("imageUpload");

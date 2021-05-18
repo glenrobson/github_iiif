@@ -67,7 +67,6 @@ public class Repo extends Session {
     }
 
     public RepositoryPath processPath(final String pPath) throws IOException {
-        System.out.println("Path " + pPath);
         String tRepoID = "";
         String tPath = null;
         if (pPath.indexOf("/") == -1) {

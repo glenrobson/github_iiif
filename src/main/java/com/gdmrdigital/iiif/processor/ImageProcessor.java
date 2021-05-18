@@ -15,6 +15,8 @@ import uk.co.gdmrdigital.iiif.image.ImageInfo;
 import com.gdmrdigital.iiif.controllers.Repo;
 import com.gdmrdigital.iiif.model.iiif.Manifest;
 
+import java.net.HttpURLConnection;
+
 import org.eclipse.egit.github.core.Repository;
 
 public class ImageProcessor extends Thread {
@@ -24,6 +26,7 @@ public class ImageProcessor extends Thread {
         GIT_UPLOAD,
         FAILED,
         UPDATING_IMG_LIST,
+        PAGES_UPDATING,
         FINISHED
     }
     protected String _id = "";
@@ -67,15 +70,42 @@ public class ImageProcessor extends Thread {
             setStatus(Status.UPDATING_IMG_LIST);
 
             Manifest tImageManifest = _repoControl.getImages(_repo);
+            URL tInfoJson = new URL(tInfo.getId() + "/info.json");
             if (!tImageManifest.hasProcess(_id)) {
-                tImageManifest.addInProcess(_id, new URL(tInfo.getId() + "/info.json"), _fileId);
+                tImageManifest.addInProcess(_id, tInfoJson, _fileId);
             }
             tImageManifest.addCanvas(_id, tInfo);
 
             _repoControl.saveImageManifest(_repo, tImageManifest);
 
-            setStatus(Status.FINISHED);
-            _instances.remove(_id);
+            setStatus(Status.PAGES_UPDATING);
+
+            int tTries = 10;
+            int tTry = 0;
+            boolean tSuccess = false;
+            HttpURLConnection con = null;
+            while (tTry < tTries) {
+                con = (HttpURLConnection) tInfoJson.openConnection();
+                con.setRequestMethod("HEAD");
+                int status = con.getResponseCode();
+                if (status == 200) {
+                    tSuccess = true;
+                    break;
+                }
+                tTry++;
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException tExcpt) {
+                }
+            }
+            con.disconnect();
+            if (!tSuccess) {
+                setStatus(Status.FAILED);
+                System.out.println("Failed to get " + tInfoJson.toString() + " after " + tTries);
+            } else {
+                setStatus(Status.FINISHED);
+                _instances.remove(_id);
+            }
         } catch (IOException tExcpt) {
             setStatus(Status.FAILED);
             System.err.println("Failed to create and upload tiles due to: " + tExcpt);
