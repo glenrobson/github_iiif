@@ -19,7 +19,7 @@
                         Select project:
                     </p>
                     <div class="oauth_option">
-                        <c:forEach var="repo" items="#{repo.repos}">
+                        <c:forEach var="repo" items="#{repos}">
                             <a class="btn btn-lg btn-google btn-block btn-outline" href="/projects/#{repo.name}/images"><h:outputText value="#{repo.name}" escape="false" /></a>
                         </c:forEach>
                     </div>

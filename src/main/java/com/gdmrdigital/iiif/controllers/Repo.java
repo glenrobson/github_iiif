@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Comparator;
 
 import java.io.IOException;
 import java.io.File;
@@ -95,18 +97,19 @@ public class Repo extends Session {
         tParams.put("topic", "iiif-training-workbench");
         //tParams.put("topic", "iiif-search");
         tParams.put("user", this.getUser().getLogin());
+        tParams.put("sort", "updated");
         System.out.println("User " + this.getUser().getLogin());
 
         List<SearchRepository> tResults = tService.searchRepositories(tParams);
-        System.out.println("Found " + tResults.size() + " compatiable repos");
-        int max = 0;
-        for (SearchRepository tRepo : tResults) {
-            System.out.println("Found repo "+  tRepo.getName() + " id: " + tRepo.getId());
-            if (max++ > 10) { 
-                break;
-            }
-        }
 
+        Collections.sort(tResults, new Comparator() {
+                            public int compare(Object o1, Object o2) {
+                                SearchRepository sa = (SearchRepository)o1;
+                                SearchRepository sb = (SearchRepository)o2;
+
+                                return sb.getCreatedAt().compareTo(sa.getCreatedAt());           
+                            }
+                        });
         return tResults;
     }
 
