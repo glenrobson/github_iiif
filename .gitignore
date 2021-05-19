@@ -1,3 +1,6 @@
+node_modules
+src/main/node/node
+
 # Compiled class file
 *.class
 
