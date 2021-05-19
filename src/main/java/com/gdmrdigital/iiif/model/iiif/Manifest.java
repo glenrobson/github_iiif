@@ -38,6 +38,20 @@ public class Manifest extends GitHubObj {
     public Manifest() {
     }
 
+    public String getId() {
+        if (_json != null) {
+            if (_json.containsKey("@id")) {
+                return (String)_json.get("@id");
+            } else if (_json.containsKey("id")) {
+                return (String)_json.get("id");
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
     public boolean hasProcess(final String pId) {
         for (Canvas tCanvas : _canvases) {
             if (tCanvas instanceof InProgressCanvas) {

@@ -48,6 +48,7 @@ function showManifest(manifest) {
         ul = manifestDiv.children[0];
     }
     var li = document.createElement("li");
+    li.id = manifest["@id"];
     li.className = "manifestSummary";
 
     var thumbnail_img = "";
@@ -85,15 +86,6 @@ function showManifest(manifest) {
     mediaBody = document.createElement("div");
     mediaBody.className = "media-body";
 
-    remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "btn  btn-secondary mb-2";
-    remove.innerHTML = "<i class='far fa-trash-alt'></i>";
-    remove.setAttribute('aria-hidden', 'true');
-    remove.dataset.mode = 'remove_manifest';
-    remove.dataset.manifest = manifest["@id"];
-    //remove.onclick = showConfirm;
-   // mediaBody.appendChild(remove);
 
     mediaHeader = document.createElement("div");
     mediaHeader.className = "media-heading";
@@ -127,39 +119,57 @@ function showManifest(manifest) {
     actionsBar.id = "actionBar";
     mediaBody.appendChild(actionsBar);
 
-    actionsBar.appendChild(setupContentState(manifest["@id"], "Link to manifest. Also draggable using IIIF Content State."));
+    actionsBar.appendChild(setupContentState(manifest['@id'], "View manifest JSON"));
 
-    open = document.createElement("a");
-    //open.href = "view.xhtml?collection=" + activeCollection["@id"] + "&manifest=" + manifest["@id"];</option>
-    open.className = "btn  btn-secondary mb-2";
-    open.innerHTML = '<i class="far fa-edit"></i>';//"Open";
-    open.title = "Open manifest for editing";
-    actionsBar.appendChild(open);
+    if (manifest["@id"].indexOf("github.io") != -1) {
+        let urlSplit = manifest["@id"].split("/");
+        let user = urlSplit[2].split(".")[0];
+        let repo = urlSplit[3];
+        let path = urlSplit.splice(4).join('/');
 
-    move = document.createElement("button");
-    move.type = "button";
-    move.className = "btn btn-secondary mb-2";
-    move.innerHTML = '<i class="far fa-folder-open"></i>';
-    move.title = "Move manifest to another collection.";
-    //move.onclick = showMoveManifest;
-    move.dataset.manifest = manifest["@id"];
-    actionsBar.appendChild(move);
-    actionsBar.appendChild(remove);
+        // https://github.com/iiif-test/test3/edit/main/manifests/manifest2.json
+        edit = document.createElement("a");
+        edit.href = "https://github.com/" + user + "/" + repo + "/edit/main/" + path;
+        edit.className = "btn  btn-secondary mb-2";
+        edit.innerHTML = '<i class="far fa-edit"></i>';//"Open";
+        edit.title = "Edit manifest";
+        edit.target = "_blank"
+        actionsBar.appendChild(edit);
 
-    download = document.createElement("a");
-    download.href = "manifest.xhtml?iiif-content=" + manifest["@id"];
-    download.className = "btn btn-secondary mb-2";
-    download.innerHTML = '<i class="fas fa-cloud-download-alt"></i>';
-    download.title = "Export";
-    actionsBar.appendChild(download);
+        remove = document.createElement("a");
+        remove.className = "btn  btn-secondary mb-2";
+        remove.innerHTML = "<i class='far fa-trash-alt'></i>";
+        remove.title = "Remove manifest";
+        remove.addEventListener("click", function () {
+            showConfirmDelete('Delete?', 'Do you want to delete this manifest?', manifest['@id'], deleteManifest);
+        });
+        actionsBar.appendChild(remove);
 
-    analytics = document.createElement("a");
-    analytics.href = "stats/manifest.xhtml?iiif-content=" + manifest["@id"];
-    analytics.className = "btn btn-secondary mb-2";
-    analytics.innerHTML = '<i class="fas fa-chart-line"></i>';
-    analytics.title = "Analytics";
-    actionsBar.appendChild(analytics);
+        // https://iiif-test.github.io/test3//manifests/manifest2.json
+        // https://github.com/iiif-test/test3/tree/main/manifests
+        GitHub = document.createElement("a");
+        GitHub.href = "https://github.com/" + user + "/" + repo + "/tree/main/" + path;
+        GitHub.className = "btn btn-secondary mb-2";
+        GitHub.innerHTML = '<img class="logo_button" src="/images/GitHub-logo-light.png"/>';
+        GitHub.title = "View on GitHub";
+        GitHub.target = "_blank"
+        actionsBar.appendChild(GitHub);
+    }
+    mirador = document.createElement("a");
+    mirador.href = "https://projectmirador.org/embed/?iiif-content=" +  manifest["@id"]
+    mirador.className = "btn btn-secondary mb-2";
+    mirador.innerHTML = '<img class="logo_button" src="/images/mirador-logo.svg"/>';
+    mirador.title = "View in Mirador";
+    mirador.target = "_blank"
+    actionsBar.appendChild(mirador);
 
+    uv = document.createElement("a");
+    uv.href = "http://universalviewer.io/examples/#?c=&m=&s=&cv=&manifest=" +  manifest["@id"]
+    uv.className = "btn btn-secondary mb-2";
+    uv.innerHTML = '<img class="logo_button" src="/images/uv-logo.png"/>';
+    uv.title = "View in Universal Viewer";
+    uv.target = "_blank"
+    actionsBar.appendChild(uv);
 
     if ('logo' in manifest) {
         var tURL = "";
@@ -210,10 +220,25 @@ function addManifest(item, index, manifests) {
         url: url,
         type: 'GET',
         success: function(data) {
+            if (url.indexOf('?') != -1) {
+                if ('@id' in item) {
+                    delete item.id;
+                } else {
+                    item.id = url.split('?')[0];
+                }
+            }
             showManifest(data);
         },
         error: function(data) {
-            console.log('Failed to get manifest ' + url + ' due to ' + data);
+            console.log('Failed to get manifest ' + url + ' due to ' + data.status);
+            if (data.status === 404) {
+                if (url.indexOf('?') != -1) {
+                    url = url.split('?')[0];
+                }
+                item.id = url + "?" + performance.now();
+                // wait then try again
+                setTimeout(addManifest, 1000, item, index, manifests);
+            }
         }
     });
 
@@ -240,7 +265,8 @@ function setupContentState(uri, description) {
     img.dataset.link = uri;
 
     a.appendChild(img);
-    a.onclick = copyClipboard;
+    //a.onclick = copyClipboard;
+    a.target = "_blank";
 
     return a;
 }
@@ -270,4 +296,32 @@ function copyClipboard(event) {
     return true;
 }
 
+function showConfirmDelete(title, message, url, onClose) {
+    let titleEl = document.getElementById('confirm.title');
+    titleEl.innerHTML = title;
 
+    let messageEl = document.getElementById('confirm.message');
+    messageEl.innerHTML = message;
+
+    let button = document.getElementById('confirm.button');
+    button.addEventListener("click", onClose);
+    button.setAttribute('data-url', url);
+     
+    $('#confirmdialog').modal('show')
+}
+
+function deleteManifest(event) {
+    let manifestURI = event.srcElement.getAttribute('data-url');
+    let splitURI = manifestURI.split('/');
+    let project = event.srcElement.getAttribute('data-project');
+    $.ajax({
+        url: '/upload/' + project + '/manifests/' + splitURI[splitURI.length - 1],
+        type: 'DELETE',
+        success: function(result) {
+            let manifestDiv = document.getElementById('manifests');
+            let manifest = document.getElementById(result.id);
+            manifestDiv.removeChild(manifest);
+            $('#confirmdialog').modal('hide')
+        }
+    });
+}

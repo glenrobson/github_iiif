@@ -52,6 +52,14 @@ public class RepositoryPath {
         return tContents;
     }
 
+    public String getSha() {
+        if (_contents != null && _contents.size() == 1) {
+            return _contents.get(0).getSha();
+        } else {
+            return "";
+        }
+    }
+
     public List<RepositoryContents> getDirectories() {
         return this.getType("dir");
     }

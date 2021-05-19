@@ -77,7 +77,7 @@ public class JsonUpload extends JSONServlet {
         Repo tRepo = new Repo();
         tRepo.setSession(pReq.getSession());
         Repository tRepoObj = tRepo.getRepo(tRequestURI[tRequestURI.length - 2]);
-        RepositoryPath tPath = new RepositoryPath(tRepoObj, "/" + tType + "/" + tName);
+        RepositoryPath tPath = new RepositoryPath(tRepoObj, tType + "/" + tName);
 
         Part tFilePart = pReq.getPart("file");
         long fileSize = tFilePart.getSize();
@@ -102,6 +102,36 @@ public class JsonUpload extends JSONServlet {
             tRepo.saveManifests(tRepoObj, tManifests);
         }
         
+        sendJson(pRes, 200, tJson);
+    }
+
+    // /upload/#{project}/manifests
+    protected void doDelete(final HttpServletRequest pReq, final HttpServletResponse pRes) throws ServletException, IOException {
+        System.out.println("Request URI " + pReq.getRequestURI());
+        String[] tRequestURI = pReq.getRequestURI().split("/");
+        String tType = tRequestURI[tRequestURI.length - 2];
+
+        String tName = tRequestURI[tRequestURI.length - 1]; // manifests2.json
+
+        Repo tRepo = new Repo();
+        tRepo.setSession(pReq.getSession());
+        Repository tRepoObj = tRepo.getRepo(tRequestURI[tRequestURI.length - 3]);
+        System.out.println("Path: " + tRepoObj.generateId() + "/" + tType + "/" + tName);
+        RepositoryPath tPath = tRepo.processPath(tRepoObj.getName() + "/" + tType + "/" + tName);
+
+        tRepo.deleteFile(tPath);
+
+        System.out.println("Type " + tType);
+        if (tType.equals("manifests")) {
+            System.out.println("Removing " + tPath.getWeb());
+            Collection tManifests = tRepo.getManifests(tRepoObj);
+            tManifests.remove(tPath.getWeb());
+
+            tRepo.saveManifests(tRepoObj, tManifests);
+        }
+
+        Map<String,Object> tJson = new HashMap<String,Object>();
+        tJson.put("id", tPath.getWeb());
         sendJson(pRes, 200, tJson);
     }
 }

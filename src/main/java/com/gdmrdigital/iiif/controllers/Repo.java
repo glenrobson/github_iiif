@@ -22,6 +22,7 @@ import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.IRepositoryIdProvider;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.RepositoryContents;
+import org.eclipse.egit.github.core.client.RequestException;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 
@@ -66,6 +67,7 @@ public class Repo extends Session {
         return tService.getUser();
     }
 
+    // test3/manifests/manifest2.json (repo/path)
     public RepositoryPath processPath(final String pPath) throws IOException {
         String tRepoID = "";
         String tPath = null;
@@ -244,6 +246,19 @@ public class Repo extends Session {
 
         ExtendedContentService tService = new ExtendedContentService(this.getClient());
         return tService.setContents(pPath.getRepo(), tFile);
+    }
+
+    public void deleteFile(final RepositoryPath pPath) throws IOException {
+        try {
+            ExtendedContentService tService = new ExtendedContentService(this.getClient());
+            tService.deleteFile(pPath, "Removing " + pPath.getName());
+        } catch (RequestException tExcpt) {
+            if (tExcpt.getStatus() != 200) {
+                System.out.println("Failed to delete file due to exception");
+                tExcpt.printStackTrace();
+                throw tExcpt;
+            }
+        }
     }
 
     public List<RepositoryContents> getFiles(final RepositoryPath pRepoPath) throws IOException {

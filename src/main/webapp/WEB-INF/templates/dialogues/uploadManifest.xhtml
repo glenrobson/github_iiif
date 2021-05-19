@@ -41,8 +41,9 @@
             var button = document.getElementById('upload_manifest');
 
             function loadManifest(data) {
-                $('#manifestUpload').modal('toggle');
-                showManifest(data);
+                addManifest(data, -1, []);
+                clearLoading("upload_manifest", original);
+                $('#manifestUpload').modal('hide');
             }
 
             var form = document.forms.namedItem("manifestUpload");
@@ -54,10 +55,12 @@
                 var oReq = new XMLHttpRequest();
                 oReq.open("POST", form.action, true);
                 oReq.onload = function(oEvent) {
-                    clearLoading("upload_manifest", original);
                     if (oReq.status == 200) {
+                        
+                        clearLoading("upload_manifest", original);
                         loadManifest(JSON.parse(oEvent.target.responseText));
                     } else {
+                        clearLoading("upload_manifest", original);
                         if (data.status === 500) {
                             showMessage("manifest_messages", "error", data.statusText);
                         } else {

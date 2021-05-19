@@ -257,9 +257,17 @@ ul.nav a.vote {
 
 #actionBar button {
     margin:5px;
+    height: 38px;
 }
 #actionBar a {
     margin:5px;
+    height: 38px;
+}
+
+.logo_button {
+    height: 30px;
+    padding-bottom: 3px;
+    margin-top: -3px;
 }
 
 #demo_video {
@@ -395,6 +403,7 @@ ul.nav a.vote {
 @media (min-width: 768px) {
     .card-deck .card {
         min-width: 33.4%;  /* 2 Columns */
+        max-width: 300px;
     }
 
     .card-img-top {
@@ -405,6 +414,7 @@ ul.nav a.vote {
 @media (min-width: 992px) {
     .card-deck .card {
         min-width: 25.1%;  /* 3 Columns */
+        max-width: 300px;
     }
     .card-img-top {
         height: 15vw !important;
@@ -414,6 +424,7 @@ ul.nav a.vote {
 @media (min-width: 1200px) {
     .card-deck .card {
         min-width: 20.1%;  /* 4 Columns */
+        max-width: 300px;
     }
     .card-img-top {
         height: 15vw !important;
@@ -441,3 +452,4 @@ ul.nav a.vote {
     bottom: 0px;
     font-size: 0.75rem;
 }
+

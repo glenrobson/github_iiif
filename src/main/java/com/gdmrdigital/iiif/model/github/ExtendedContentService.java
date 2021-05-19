@@ -32,6 +32,9 @@ public class ExtendedContentService extends ContentsService {
 		uri.append("/").append(pRepo.generateId());
 		uri.append("/contents");
         if (pContent.getPath() != null) {
+            if (!pContent.getPath().startsWith("/")) {
+                uri.append("/");
+            }
             uri.append(pContent.getPath());
         }
 		uri.append("/").append(pContent.getName());
@@ -41,8 +44,26 @@ public class ExtendedContentService extends ContentsService {
         tParams.put("message", pMessage);
         tParams.put("sha", pContent.getSha());
 
+        System.out.println("URI " + uri.toString());
         client.setHeaderAccept("application/vnd.github.v3+json");
         return (ContentResponse)client.put(uri.toString(), tParams, ContentResponse.class);
+    }
+
+    public void deleteFile(final RepositoryPath pPath, final String pMessage) throws IOException {
+        // delete /repos/{owner}/{repo}/contents/{path}
+        StringBuilder uri = new StringBuilder(SEGMENT_REPOS);
+		uri.append("/").append(pPath.getRepo().generateId());
+		uri.append("/contents/");
+        uri.append(pPath.getPath());
+
+        Map<String, Object> tParams = new HashMap<String,Object>();
+        tParams.put("message", pMessage);
+        tParams.put("sha", pPath.getSha());
+
+        System.out.println("URI " + uri.toString());
+
+        client.setHeaderAccept("application/vnd.github.v3+json");
+        client.delete(uri.toString(), tParams);
     }
 
     public class ContentResponse {

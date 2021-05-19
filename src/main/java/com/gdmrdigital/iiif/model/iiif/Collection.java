@@ -43,6 +43,16 @@ public class Collection extends GitHubObj {
         _manifests.add(pManifest);
     }
 
+    public void remove(final String pID) {
+        for (Manifest tManifest: _manifests) {
+            System.out.println("Seeing if " + pID + " matches " + tManifest.getId());
+            if (tManifest.getId().equals(pID)) {
+                _manifests.remove(tManifest);
+                break;
+            }
+        }
+    }
+
     public void loadJson(final Map<String, Object> pJson) {
         _json = pJson;
         loadManifests();
