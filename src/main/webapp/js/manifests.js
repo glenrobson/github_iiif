@@ -36,7 +36,7 @@ function findValue(parentnode, key) {
     }
     return response;
 }
-function showManifest(manifest) {
+function showManifest(manifest, retrieved) {
     let manifestDiv = document.getElementById('manifests_div');
     let ul = null;
     if (manifestDiv.children.length != 1) {
@@ -47,9 +47,16 @@ function showManifest(manifest) {
     } else {
         ul = manifestDiv.children[0];
     }
+    let manifest_id = manifest["@id"];
+
     var li = document.createElement("li");
-    li.id = manifest["@id"];
-    li.className = "manifestSummary";
+    if (document.getElementById(manifest_id) != null) {
+        li = document.getElementById(manifest_id);
+        li.innerHTML = '';
+    } else {
+        li.id = manifest["@id"];
+        li.className = "manifestSummary";
+    }
 
     var thumbnail_img = "";
     if ('thumbnail' in manifest && manifest.thumbnail) {
@@ -119,7 +126,9 @@ function showManifest(manifest) {
     actionsBar.id = "actionBar";
     mediaBody.appendChild(actionsBar);
 
-    actionsBar.appendChild(setupContentState(manifest['@id'], "View manifest JSON"));
+    if (retrieved) {
+        actionsBar.appendChild(setupContentState(manifest['@id'], "View manifest JSON"));
+    }
 
     if (manifest["@id"].indexOf("github.io") != -1) {
         let urlSplit = manifest["@id"].split("/");
@@ -156,19 +165,29 @@ function showManifest(manifest) {
         actionsBar.appendChild(GitHub);
     }
     mirador = document.createElement("a");
-    mirador.href = "https://projectmirador.org/embed/?iiif-content=" +  manifest["@id"]
     mirador.className = "btn btn-secondary mb-2";
-    mirador.innerHTML = '<img class="logo_button" src="/images/mirador-logo.svg"/>';
-    mirador.title = "View in Mirador";
-    mirador.target = "_blank"
+    if (retrieved) {
+        mirador.href = "https://projectmirador.org/embed/?iiif-content=" +  manifest["@id"]
+        mirador.innerHTML = '<img class="logo_button" src="/images/mirador-logo.svg"/>';
+        mirador.title = "View in Mirador";
+        mirador.target = "_blank"
+    } else {
+        mirador.appendChild(createSpinner());
+        mirador.title = "Manifest is publishing...";
+    }
     actionsBar.appendChild(mirador);
 
     uv = document.createElement("a");
-    uv.href = "http://universalviewer.io/examples/#?c=&m=&s=&cv=&manifest=" +  manifest["@id"]
     uv.className = "btn btn-secondary mb-2";
-    uv.innerHTML = '<img class="logo_button" src="/images/uv-logo.png"/>';
-    uv.title = "View in Universal Viewer";
-    uv.target = "_blank"
+    if (retrieved) {
+        uv.href = "http://universalviewer.io/examples/#?c=&m=&s=&cv=&manifest=" +  manifest["@id"]
+        uv.innerHTML = '<img class="logo_button" src="/images/uv-logo.png"/>';
+        uv.title = "View in Universal Viewer";
+        uv.target = "_blank"
+    } else {
+        uv.appendChild(createSpinner());
+        uv.title = "Manifest is publishing...";
+    }
     actionsBar.appendChild(uv);
 
     if ('logo' in manifest) {
@@ -209,6 +228,22 @@ function showManifest(manifest) {
     ul.appendChild(li);
 }
 
+function createSpinner() {
+    /* <div class="spinner-border" role="status">
+          <span class="sr-only">Loading...</span>
+        </div> */
+    let div = document.createElement("div");
+    div.className = "spinner-border";
+    div.role = "status";
+
+    let span = document.createElement("span");
+    span.className = "sr-only";
+    span.innerHTML = "Loading...";
+    div.appendChild(span);
+
+    return div;
+}
+
 function addManifest(item, index, manifests) {
     let url = "";
     if ('id' in item) {
@@ -227,7 +262,7 @@ function addManifest(item, index, manifests) {
                     item.id = url.split('?')[0];
                 }
             }
-            showManifest(data);
+            showManifest(data,true);
         },
         error: function(data) {
             console.log('Failed to get manifest ' + url + ' due to ' + data.status);

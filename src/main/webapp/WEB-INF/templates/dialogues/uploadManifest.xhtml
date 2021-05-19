@@ -41,9 +41,10 @@
             var button = document.getElementById('upload_manifest');
 
             function loadManifest(data) {
-                addManifest(data, -1, []);
-                clearLoading("upload_manifest", original);
+                showManifest(data,false);
                 $('#manifestUpload').modal('hide');
+                // Go and get manifest and replace once available
+                addManifest(data, -1, []);
             }
 
             var form = document.forms.namedItem("manifestUpload");
