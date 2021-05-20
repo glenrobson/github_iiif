@@ -27,6 +27,7 @@ import com.gdmrdigital.iiif.controllers.Repo;
 import com.gdmrdigital.iiif.model.github.RepositoryPath;
 import com.gdmrdigital.iiif.model.iiif.Manifest;
 import com.gdmrdigital.iiif.model.iiif.Collection;
+import com.gdmrdigital.iiif.model.iiif.Layer;
 
 import org.eclipse.egit.github.core.Repository;
 
@@ -100,6 +101,11 @@ public class JsonUpload extends JSONServlet {
             tManifests.add(tManifest);
 
             tRepo.saveManifests(tRepoObj, tManifests);
+        } else if (tType.equals("annotations")) {
+            Layer tAnnos = tRepo.getAnnotations(tRepoObj);
+            tAnnos.addAnnotationList(new URL(tPath.getWeb()));
+
+            tRepo.saveAnnotations(tRepoObj, tAnnos);
         }
         
         sendJson(pRes, 200, tJson);
@@ -128,6 +134,13 @@ public class JsonUpload extends JSONServlet {
             tManifests.remove(tPath.getWeb());
 
             tRepo.saveManifests(tRepoObj, tManifests);
+        } else if (tType.equals("annotations")) {
+            System.out.println("Removing " + tPath.getWeb());
+            Layer tAnnos = tRepo.getAnnotations(tRepoObj);
+            tAnnos.remove(new URL(tPath.getWeb()));
+
+            tRepo.saveAnnotations(tRepoObj, tAnnos);
+
         }
 
         Map<String,Object> tJson = new HashMap<String,Object>();

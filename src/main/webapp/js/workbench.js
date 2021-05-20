@@ -135,3 +135,18 @@ function fileSelected(name) {
         nameInput.parentElement.parentElement.style.display = "flex";
     }
 }
+
+function showConfirmDelete(title, message, url, onClose) {
+    let titleEl = document.getElementById('confirm.title');
+    titleEl.innerHTML = title;
+
+    let messageEl = document.getElementById('confirm.message');
+    messageEl.innerHTML = message;
+
+    let button = document.getElementById('confirm.button');
+    button.addEventListener("click", onClose);
+    button.setAttribute('data-url', url);
+     
+    $('#confirmdialog').modal('show')
+}
+

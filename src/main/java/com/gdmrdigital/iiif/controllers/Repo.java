@@ -5,6 +5,7 @@ import com.gdmrdigital.iiif.model.github.ExtendedContentService;
 import com.gdmrdigital.iiif.model.github.ExtendedContentService.ContentResponse;
 import com.gdmrdigital.iiif.model.github.RepositoryPath;
 import com.gdmrdigital.iiif.model.iiif.Manifest;
+import com.gdmrdigital.iiif.model.iiif.Layer;
 import com.gdmrdigital.iiif.model.iiif.Collection;
 import com.gdmrdigital.iiif.Config;
 
@@ -222,6 +223,50 @@ public class Repo extends Session {
         List<RepositoryContents> tManifestList = this.getFiles(tPath);
         pCollection.setSha(tManifestList.get(0).getSha());
     }
+
+    public Layer getAnnotations(final Repository pRepo) throws IOException {
+        RepositoryPath tPath = new RepositoryPath(pRepo, "annotations/collection.json");
+        String tCollectionPath = pRepo.generateId() + tPath.getPath();
+        if (super.getSession().getAttribute(tCollectionPath) != null) {
+            Layer tCollection = (Layer)super.getSession().getAttribute(tCollectionPath);
+            System.out.println("Sha: " + tCollection.getSha());
+            return tCollection;
+        } else {
+            // Get from repo
+            Layer tAnnos = new Layer();
+            try {
+                List<RepositoryContents> tAnnoList = this.getFiles(tPath);
+                if (tAnnoList.get(0).getContent() == null) {
+                    throw new IOException("Empty collection found");
+                } else {
+                    tAnnos.loadJson(this.contents2Json(tAnnoList.get(0)));
+                    System.out.println("Sha: " + tAnnoList.get(0).getSha());
+                    tAnnos.setSha(tAnnoList.get(0).getSha());
+                }
+            } catch (IOException tExcpt) {    
+                System.err.println("Failed to retrieve /annotations/collection.json so creating new"); 
+                //tExcpt.printStackTrace();
+                // create new manifest
+                tAnnos = Layer.createEmpty(tPath.getWeb(), "All annotations loaded in " + pRepo.generateId() + " project");
+            }
+
+            super.getSession().setAttribute(tCollectionPath, tAnnos);
+            return tAnnos;
+        }
+
+    }
+
+    public void saveAnnotations(final Repository pRepo, final Layer pCollection) throws IOException {
+        RepositoryPath tPath = new RepositoryPath(pRepo, "/annotations/collection.json");
+        String tCollectionPath = pRepo.generateId() + tPath.getPath();
+        super.getSession().setAttribute(tCollectionPath, pCollection);
+        
+        ContentResponse tResponse = this.uploadFile(tPath, JsonUtils.toPrettyString(pCollection.toJson()), pCollection.getSha());
+
+        List<RepositoryContents> tAnnoList = this.getFiles(tPath);
+        pCollection.setSha(tAnnoList.get(0).getSha());
+    }
+
 
     public ContentResponse uploadFile(final RepositoryPath pPath, final String pContents) throws IOException {
         try {

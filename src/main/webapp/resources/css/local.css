@@ -254,6 +254,10 @@ ul.nav a.vote {
     border-top: 1px dotted #ddd;
     text-align: right;
 }
+.miniActionBar {
+    float:right;
+    border-top: none !important;
+}
 
 #actionBar button {
     margin:5px;

@@ -3,6 +3,10 @@
   xsi:schemaLocation="http://ocpsoft.org/schema/rewrite-config-prettyfaces
                       http://ocpsoft.org/xml/ns/prettyfaces/rewrite-config-prettyfaces.xsd">
 
+    <url-mapping id="annotations">
+		<pattern value="/projects/#{project}/annotations" />
+		<view-id value="/annotations.xhtml" />
+	</url-mapping>
     <url-mapping id="manifests">
 		<pattern value="/projects/#{project}/manifests" />
 		<view-id value="/manifests.xhtml" />
