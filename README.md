@@ -14,3 +14,7 @@ This project is being used to support the IIIF training and there are the follow
  * [Uploading Manifests](https://training.iiif.io/iiif-online-workshop/day-three/workbench/)
  * [Uploading Annotations](https://training.iiif.io/iiif-online-workshop/day-four/workbench.html)
 
+## Example Projects
+
+You can see the projects that people have created using this tool by browsing the following topic:
+ * [iiif-training-workbench](https://github.com/topics/iiif-training-workbench)
