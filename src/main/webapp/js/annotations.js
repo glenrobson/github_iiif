@@ -19,11 +19,14 @@ function showAnnosFrom(project) {
 }
 function showNoAnnos() {
     var ul = document.getElementById('anno_list');
-    ul.innerHTML = "<li>No Annotations found. Upload one by clicking the upload button.</li>"
+    ul.innerHTML = "<li id='empty' class='list-group-item list-group-item-action'>No Annotations found. Upload one by clicking the upload button.</li>"
 }
 
 function showAnnotation(url, retrieved) {
     var ul = document.getElementById('anno_list');
+    if (document.getElementById('empty')) {
+        ul.removeChild(document.getElementById('empty'));
+    }
     let li = document.createElement('li');
     if (document.getElementById(url) != null) {
         li = document.getElementById(url);
