@@ -20,25 +20,7 @@ function showNoImages() {
 
 // Return URL to IIIF image which matches or is bigger than supplied width and height
 function getImageURL(width, height, canvas) {
-    let sizes = canvas.items[0].items[0].body.service[0].sizes;
-    let smallsize = { width: canvas.width, height: canvas.height};
-    for (let i = 0; i < sizes.length; i++) {
-        let size = sizes[i];
-        if (size.width > width && size.height > height) { 
-            if (size.width < smallsize.width && size.height < smallsize.height) {
-                smallsize.width = size.width;
-                smallsize.height = size.height;
-            }
-        }
-    }
-
-    if ('type' in canvas.items[0].items[0].body.service[0] && canvas.items[0].items[0].body.service[0].type === 'ImageService3') {
-        let imageUrl = canvas.items[0].items[0].body.service[0].id;
-        return imageUrl + "/full/" + smallsize.width + "," + smallsize.height + "/0/default.jpg";
-    } else {
-        let imageUrl = canvas.items[0].items[0].body.service[0]["@id"];
-        return imageUrl + "/full/" + smallsize.width + ",/0/default.jpg";
-    }
+    return getIIIFImageURL(width, height, canvas.items[0].items[0].body.service[0]);
 }
 
 function monitorImage(details) {
@@ -48,7 +30,7 @@ function monitorImage(details) {
         details.project
     */
     $.ajax({
-        url: '/status/images' + details.project + '/images/manifest.json',
+        url: '/status/images/' + details.project + '/images/manifest.json',
         type: 'GET',
         data: {
             id: details.proccess_id

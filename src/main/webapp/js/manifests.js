@@ -59,11 +59,14 @@ function showManifest(manifest, retrieved) {
     }
 
     var thumbnail_img = "";
+    var img = document.createElement("img");
     if ('thumbnail' in manifest && manifest.thumbnail) {
         if (typeof manifest.thumbnail === 'string' || manifest.thumbnail instanceof String) {
             thumbnail_img = manifest.thumbnail;
+            img.src = thumbnail_img;
         } else if (typeof manifest.thumbnail === 'object' && !Array.isArray(manifest.thumbnail)){
             thumbnail_img = manifest.thumbnail['@id'];
+            img.src = thumbnail_img;
         }
     } else {
         // Get image service from first canvas
@@ -74,12 +77,22 @@ function showManifest(manifest, retrieved) {
                         && manifest.sequences[0].canvases[0].images[0].resource.service["@id"] && typeof manifest.sequences[0].canvases[0].images[0].resource.service["@id"] === 'string') {
             var imageId = manifest.sequences[0].canvases[0].images[0].resource.service["@id"];
             thumbnail_img = imageId + '/full/,100/0/default.jpg';
+
+            $.ajax({
+                url: imageId + '/info.json',
+                type: 'GET',
+                success: function(data) {
+                    let URL = getIIIFImageURL(200,100, data);
+                    img.src = URL;
+                },
+                error: function(data) {
+                    console.log('Failed to get image ' + imageId + ' due to ' + data);
+                }
+            });
         }
     }
     
-    var img = document.createElement("img");
     img.className = "align-self-center mr-3 media-img";
-    img.src = thumbnail_img;
 
     openImg = document.createElement("a");
     //openImg.href = "view.xhtml?collection=" + activeCollection["@id"] + "&manifest=" + manifest["@id"];</option>
