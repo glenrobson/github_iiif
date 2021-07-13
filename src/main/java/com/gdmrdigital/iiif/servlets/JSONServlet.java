@@ -43,6 +43,11 @@ public class JSONServlet extends HttpServlet {
         }
     }
 
+    protected Repo getRepoService() {
+        return new Repo();
+    }
+
+
      protected void sendJson(final HttpServletResponse pRes, final int pCode, final Map<String,Object> pPayload) throws IOException {
         pRes.setStatus(pCode);
         pRes.setContentType("application/json");

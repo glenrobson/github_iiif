@@ -15,7 +15,7 @@ function showImageJson(project) {
 
 function showNoImages() {
     var div = document.getElementById('images');
-    div.innerHTML = "No images found. Upload one by clicking the upload button."
+    div.innerHTML = "<div id='emptyImages' class='emptyAssets'>No images found. Upload one by clicking the upload button.</div>"
 }
 
 // Return URL to IIIF image which matches or is bigger than supplied width and height
@@ -53,6 +53,10 @@ function monitorImage(details) {
                     finished = true;
                 } else if (data.status === "FAILED") {
                     finished = true;
+                    let statusText = document.getElementById('image-status-' + details.proccess_id);
+                    statusText.innerHTML = "Image failed to load";
+
+                    document.getElementById('spinner-' + details.proccess_id).classList = [];
                 }
             } else {
                 console.log("Process " + details.proccess_id + " seems to have finished");
@@ -62,7 +66,8 @@ function monitorImage(details) {
             if (!finished) {
                 setTimeout(monitorImage, 4000, details);
             } else {
-                showImageJson(details.project);
+               console.log("Looks like image " + details.proccess_id + " has finished");
+               showImageJson(details.project);
             }
         },
         error: function(data) {
@@ -74,6 +79,12 @@ function monitorImage(details) {
 
 function addImage(item, project) {
     var parentDiv = document.getElementById('images');
+    if (document.getElementById('emptyImages') != null) {
+        // remove empty images message
+        let emptyNote = document.getElementById('emptyImages');
+        parentDiv.removeChild(emptyNote);
+    }
+
     /*
         <div class="card" style="width: 18rem;">
           <img class="card-img-top" src="..." alt="Card image cap">
@@ -127,6 +138,7 @@ function addImage(item, project) {
         cardDiv.appendChild(container);
 
         let spinner = document.createElement("div");
+        spinner.id = 'spinner-' + item.proccess_id;
         spinner.className = "spinner-border image-spinner";
         spinner.role = "status";
         container.appendChild(spinner);

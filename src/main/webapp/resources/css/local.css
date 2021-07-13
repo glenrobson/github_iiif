@@ -457,3 +457,12 @@ ul.nav a.vote {
     font-size: 0.75rem;
 }
 
+.emptyAssets {
+    margin-left: 15px;
+    margin-right: 15px;
+    padding: .75rem 1.25rem;
+    background-color: #fff;
+    border: 1px solid rgba(0,0,0,.125);
+    width: 100%;
+    color: #495057;
+}

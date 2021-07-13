@@ -53,6 +53,15 @@ public class Collection extends GitHubObj {
         }
     }
 
+    public boolean hasManifest(final Manifest pManifest) {
+        for (Manifest tManifest: _manifests) {
+            if (tManifest.getId().equals(pManifest.getId())) {
+                return true;
+            }    
+        }
+        return false;
+    }
+
     public void loadJson(final Map<String, Object> pJson) {
         _json = pJson;
         loadManifests();

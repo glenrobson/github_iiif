@@ -15,7 +15,7 @@ function showManifestsFrom(project) {
 
 function showNoManifests() {
     var div = document.getElementById('manifests_div');
-    div.innerHTML = "No manifests found. Upload one by clicking the upload button."
+    div.innerHTML = "<div id='empty' class='list-group-item list-group-item-action'>No manifests found. Upload one by clicking the upload button.</div>"
 }
 
 function findValue(parentnode, key) {
