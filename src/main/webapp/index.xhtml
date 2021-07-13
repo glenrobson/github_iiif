@@ -23,9 +23,8 @@
                             <a class="btn btn-lg btn-google btn-block btn-outline" href="/projects/#{repo.name}/images"><h:outputText value="#{repo.name}" escape="false" /></a>
                         </c:forEach>
                     </div>
-                    <p>
-                        <button type="button" class="btn btn-primary" onclick="return showProjectForm();">Add another project</button>
-                    </p>
+                    <p>Or add a new one:</p>
+                    <button type="button" class="btn btn-primary" onclick="return showProjectForm();">Create Project</button>
                 </c:if>
                 <c:if test="#{empty repos}">
                     <p>No projects found.</p>
