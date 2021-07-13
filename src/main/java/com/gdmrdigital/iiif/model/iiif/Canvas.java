@@ -12,6 +12,16 @@ public class Canvas {
         _json = pJson;
     }
 
+    public String getId() {
+        if (_json.containsKey("id")) {
+            return (String)_json.get("id");
+        } else if (_json.containsKey("@id")) {
+            return (String)_json.get("@id");
+        } else {
+            throw new IllegalArgumentException("Missing id in Canvas");
+        }
+    }
+
     public Map<String, Object> toJson() {
         return _json;
     }

@@ -54,6 +54,15 @@ public class Layer extends GitHubObj {
         loadAnnotations();
     }
 
+    public boolean hasAnnotationList(final Map<String, Object> pJson) {
+        for (URL tAnnoURL : _annotationLists) {
+            if (tAnnoURL.toString().equals(pJson.get("@id"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected void loadAnnotations() {
         _annotationLists = new ArrayList<URL>();
 

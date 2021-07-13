@@ -40,13 +40,20 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 
+import java.net.URL;
+import java.net.HttpURLConnection;
+
 import java.io.IOException;
 import java.io.File;
 import java.io.FileInputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RequestScoped
 @ManagedBean
 public class Repo extends Session {
+    final Logger _logger = LoggerFactory.getLogger(Repo.class);
 
     public Repo() {
         super();
@@ -63,6 +70,10 @@ public class Repo extends Session {
         tClient.setOAuth2Token(tService.getToken().getAccessToken());
 
         return tClient;
+    }
+
+    protected ExtendedContentService getContentService() {
+        return new ExtendedContentService(this.getClient());
     }
 
     protected User getUser() {
@@ -84,8 +95,36 @@ public class Repo extends Session {
                 tPath = pPath.substring(pPath.indexOf("/") + 1);
             }
         }
+
         Repository tRepo = this.getRepo(tRepoID);
-        RepositoryPath tRepoPath = new RepositoryPath(tRepo, tPath);
+        return processPath(tRepo, tPath);
+    }
+
+    public boolean checkAvilable(final URL pInfoJson, final int pTries) throws IOException {
+        int tTry = 0;
+        boolean tSuccess = false;
+        HttpURLConnection con = null;
+        while (tTry < pTries) {
+            con = (HttpURLConnection) pInfoJson.openConnection();
+            con.setRequestMethod("HEAD");
+            int status = con.getResponseCode();
+            if (status == 200) {
+                tSuccess = true;
+                break;
+            }
+            tTry++;
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException tExcpt) {
+            }
+        }
+        con.disconnect();
+        return tSuccess;
+    }
+
+
+    public RepositoryPath processPath(final Repository pRepo, final String pPath) throws IOException {
+        RepositoryPath tRepoPath = new RepositoryPath(pRepo, pPath);
         tRepoPath.setContents(this.getFiles(tRepoPath));
 
         return tRepoPath;
@@ -133,13 +172,12 @@ public class Repo extends Session {
     public Manifest getImages(final Repository pRepo) throws IOException {
         RepositoryPath tPath = new RepositoryPath(pRepo, "images/manifest.json");
         String tManifestPath = pRepo.generateId() + tPath.getPath();
+        Manifest tImagesManifest = new Manifest();
         if (super.getSession().getAttribute(tManifestPath) != null) {
-            Manifest tManifest = (Manifest)super.getSession().getAttribute(tManifestPath);
-            System.out.println("Sha: " + tManifest.getSha());
-            return (Manifest)super.getSession().getAttribute(tManifestPath);
+            tImagesManifest = (Manifest)super.getSession().getAttribute(tManifestPath);
+            _logger.debug("Getting manifest from session");
         } else {
             // Get from repo
-            Manifest tImagesManifest = new Manifest();
             try {
                 List<RepositoryContents> tManifestList = this.getFiles(tPath);
                 if (tManifestList.get(0).getContent() == null) {
@@ -148,17 +186,27 @@ public class Repo extends Session {
                     tImagesManifest.loadJson(this.contents2Json(tManifestList.get(0)));
                     System.out.println("Sha: " + tManifestList.get(0).getSha());
                     tImagesManifest.setSha(tManifestList.get(0).getSha());
+                    if (tImagesManifest.removeFinishedInProcess()) {
+                        // in Process canvases were removed so save new copy. 
+                        saveImageManifest(pRepo, tImagesManifest);
+                    }
                 }
+                _logger.debug("Getting manifest from GitHub");
             } catch (IOException tExcpt) {    
-                System.err.println("Failed to retrieve /images/manifest.json so creating new"); 
-                tExcpt.printStackTrace();
-                // create new manifest
-                tImagesManifest = Manifest.createEmpty(tPath.getWeb(), "All images loaded in " + pRepo.generateId() + " project");
+                if (tExcpt.getMessage().equals("Empty manifest found") || (tExcpt instanceof RequestException && tExcpt.getMessage().equals("Not Found (404)")) ) {
+                    _logger.debug("Failed to retrieve " + pRepo.generateId() + "/images/manifest.json so creating new. Failed due to: " + tExcpt); 
+                    // create new manifest
+                    tImagesManifest = Manifest.createEmpty(tPath.getWeb(), "All images loaded in " + pRepo.generateId() + " project");
+                } else {
+                    throw tExcpt;
+                }
             }
 
             super.getSession().setAttribute(tManifestPath, tImagesManifest);
-            return tImagesManifest;
         }
+
+        _logger.debug("Returning manifest {}", JsonUtils.toPrettyString(tImagesManifest.toJson()));
+        return tImagesManifest;
     }
 
     public Map<String, Object> contents2Json(final RepositoryContents pContents) throws IOException {
@@ -171,11 +219,12 @@ public class Repo extends Session {
     }
 
     public void saveImageManifest(final Repository pRepo, final Manifest pManifest) throws IOException {
+        _logger.debug("Saving image manifest {}", JsonUtils.toPrettyString(pManifest.toJson()));
         RepositoryPath tPath = new RepositoryPath(pRepo, "/images/manifest.json");
         String tManifestPath = pRepo.generateId() + tPath.getPath();
         super.getSession().setAttribute(tManifestPath, pManifest);
         
-        ContentResponse tResponse = this.uploadFile(tPath, JsonUtils.toPrettyString(pManifest.toJson()), pManifest.getSha());
+        ContentResponse tResponse = this.uploadFile(tPath, JsonUtils.toPrettyString(pManifest.toStoreJson()), pManifest.getSha());
 
         List<RepositoryContents> tManifestList = this.getFiles(tPath);
         pManifest.setSha(tManifestList.get(0).getSha());
@@ -217,7 +266,7 @@ public class Repo extends Session {
         RepositoryPath tPath = new RepositoryPath(pRepo, "/manifests/collection.json");
         String tCollectionPath = pRepo.generateId() + tPath.getPath();
         super.getSession().setAttribute(tCollectionPath, pCollection);
-        
+
         ContentResponse tResponse = this.uploadFile(tPath, JsonUtils.toPrettyString(pCollection.toJson()), pCollection.getSha());
 
         List<RepositoryContents> tManifestList = this.getFiles(tPath);
@@ -292,13 +341,13 @@ public class Repo extends Session {
             System.out.println("Sha: " + tFile.getSha());
         }
 
-        ExtendedContentService tService = new ExtendedContentService(this.getClient());
+        ExtendedContentService tService = this.getContentService();
         return tService.setContents(pPath.getRepo(), tFile);
     }
 
     public void deleteFile(final RepositoryPath pPath) throws IOException {
         try {
-            ExtendedContentService tService = new ExtendedContentService(this.getClient());
+            ExtendedContentService tService = this.getContentService();
             tService.deleteFile(pPath, "Removing " + pPath.getName());
         } catch (RequestException tExcpt) {
             if (tExcpt.getStatus() != 200) {
@@ -309,13 +358,30 @@ public class Repo extends Session {
         }
     }
 
+    public void deleteRecursive(final RepositoryPath pDir) throws IOException {
+        Repository tRepo = pDir.getRepo();
+        for (RepositoryContents tChild: pDir.getContents()) {
+            if (tChild.getType().equals("dir")) {
+                RepositoryPath tChildPath = this.processPath(tRepo, tChild.getPath());
+                System.out.println("Calling  deleteRecursive on " + tChildPath);
+                this.deleteRecursive(tChildPath);
+            } else {
+                RepositoryPath tPath = new RepositoryPath(tRepo, tChild.getPath());
+                System.out.println("Calling delete file on " + tPath);
+                this.deleteFile(tPath);
+            }
+        }
+    }
+
     public List<RepositoryContents> getFiles(final RepositoryPath pRepoPath) throws IOException {
         List<RepositoryContents> tContents = null;
        
-        ContentsService tService = new ContentsService(this.getClient());
+        ContentsService tService = this.getContentService();
         if (pRepoPath.getPath() == null) {
             tContents = tService.getContents(pRepoPath.getRepo());
         } else {    
+            _logger.debug("Contents service {}", tService.getClass().getName()); 
+            _logger.debug("Repo service {}", getClass().getName()); 
             tContents = tService.getContents(pRepoPath.getRepo(), pRepoPath.getPath());
         }
         return tContents;
@@ -339,7 +405,7 @@ public class Repo extends Session {
     }
 
     public List<RepositoryContents> uploadDirectory(final IRepositoryIdProvider pRepo, final String pPath, final File pDataDir) throws IOException {
-        ExtendedContentService tService = new ExtendedContentService(this.getClient());
+        ExtendedContentService tService = this.getContentService();
         File[] tFiles = pDataDir.listFiles();
 
         for (int i = 0; i < tFiles.length; i++) {

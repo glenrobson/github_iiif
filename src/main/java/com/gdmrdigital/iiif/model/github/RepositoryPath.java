@@ -32,6 +32,14 @@ public class RepositoryPath {
             _isRoot = false;
         }
     }
+    
+    public String toString() {
+        int size = 0;
+        if (_contents != null) {
+            size = _contents.size();
+        }
+        return "RepositoryPath: " + _repo.generateId() + _path + ", isDirectory(" + _directory + ") isRoot(" + _isRoot + "). Children: " + size;
+    }
 
     public boolean isRoot() {
         return _isRoot;
@@ -102,11 +110,6 @@ public class RepositoryPath {
 
         return tURL;
     }
-
-    public String toString() {
-        return _repo.generateId() + "/" + _path;
-    }
-
 
     public void setContents(final List<RepositoryContents> pContents) {
         _contents = pContents;

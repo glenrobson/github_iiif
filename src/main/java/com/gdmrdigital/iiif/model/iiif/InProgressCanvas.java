@@ -3,6 +3,7 @@ package com.gdmrdigital.iiif.model.iiif;
 import com.github.jsonldjava.utils.JsonUtils;
 
 import java.net.URL;
+import java.net.MalformedURLException;
 
 import java.util.List;
 import java.util.Map;
@@ -11,25 +12,50 @@ import java.util.ArrayList;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.co.gdmrdigital.iiif.image.InfoJson;
 
 public class InProgressCanvas extends Canvas {
+    final Logger _logger = LoggerFactory.getLogger(InProgressCanvas.class);
     protected String _proccessId = "";
-    protected String _label = "";
     protected String _baseURI = "";
+    protected String _label = "";
     protected URL _infoJson = null;
     protected boolean _isInProcess = true;
-    public InProgressCanvas(final String pProccessId) {
+    public InProgressCanvas(final String pProccessId, final URL pInfoJson) {
         super();
         _proccessId = pProccessId;
         _isInProcess = true;
+        this.setInfoJson(pInfoJson);
+        _json = this.createBasic();
+        _json.put("proccess_id", _proccessId);
+    }
+
+
+    public InProgressCanvas(final Map<String,Object> pCanvasJson) {
+        super();
+        _proccessId = (String)pCanvasJson.get("proccess_id");
+        _isInProcess = true;
+        try {
+            this.setInfoJson(new URL(((String)pCanvasJson.get("id")).replace("/canvas/","/info.json")));
+        } catch (MalformedURLException tExcept) {
+            _logger.error("Failed to convert id " + pCanvasJson.get("id") + " to JSON URL");
+        }
+
+        _json = pCanvasJson;
+    }
+
+    public boolean isInProcess() {
+        return _isInProcess;
     }
 
     public URL getInfoJson() {
         return _infoJson;
     }
 
-    public void setInfoJson(final URL pInfoJson) {
+    private void setInfoJson(final URL pInfoJson) {
         _infoJson = pInfoJson;
     }
 
@@ -39,6 +65,11 @@ public class InProgressCanvas extends Canvas {
 
     public void setLabel(final String pLabel) {
         _label = pLabel;
+        try {
+            _json.put("label", JsonUtils.fromString("{ \"none\": [ \"" +  _label + "\" ] }"));
+        } catch (IOException tExcpt) {
+            tExcpt.printStackTrace();
+        }
     }
 
     public String getProcessId() {
@@ -110,9 +141,6 @@ public class InProgressCanvas extends Canvas {
 
     public Map<String,Object> toJson() {
         if (_isInProcess) {
-            _json = this.createBasic();
-            _json.put("proccess_id", _proccessId);
-
             return _json;
         } else {
             return super.toJson();

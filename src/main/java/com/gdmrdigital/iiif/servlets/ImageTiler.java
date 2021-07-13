@@ -42,7 +42,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebInitParam;
@@ -58,8 +59,8 @@ import javax.servlet.http.Part;
     maxRequestSize = 10L * 1024 * 1024,
     maxFileSize = 10L * 1024 * 1024*/
 )
-public class ImageTiler extends HttpServlet {
-    private static final Logger log = Logger.getLogger(ImageTiler.class.getName());
+public class ImageTiler extends JSONServlet {
+    private static final Logger log = LoggerFactory.getLogger(ImageTiler.class);
     private volatile File _tmpDir = null;
 
 
@@ -99,7 +100,7 @@ public class ImageTiler extends HttpServlet {
         tProcessor.setInputImage(tImageFile);
         tProcessor.setTileDestination(tTiles);
 
-        Repo tRepo = new Repo();
+        Repo tRepo = this.getRepoService();
         tRepo.setSession(req.getSession());
 
         RepositoryPath tWeb = tRepo.processPath(tRepoName + "/images");
@@ -121,13 +122,6 @@ public class ImageTiler extends HttpServlet {
         // addInProcess(final String pProccessId, final URL pInfoJson, final String pLabel)
         tImages.addInProcess(tProcessor.getIdentifier(), new URL(tWeb.getWeb() + "/" +  tId + "/info.json"), tId);
         sendJson(resp, 200, tImages.toJson());
-    }
-
-    protected void sendJson(final HttpServletResponse pRes, final int pCode, final Map<String,Object> pPayload) throws IOException {
-        pRes.setStatus(pCode);
-        pRes.setContentType("application/json");
-        pRes.setCharacterEncoding("UTF-8");
-        JsonUtils.writePrettyPrint(pRes.getWriter(), pPayload);
     }
 }
 

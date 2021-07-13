@@ -15,8 +15,6 @@ import uk.co.gdmrdigital.iiif.image.ImageInfo;
 import com.gdmrdigital.iiif.controllers.Repo;
 import com.gdmrdigital.iiif.model.iiif.Manifest;
 
-import java.net.HttpURLConnection;
-
 import org.eclipse.egit.github.core.Repository;
 
 public class ImageProcessor extends Thread {
@@ -81,24 +79,7 @@ public class ImageProcessor extends Thread {
             setStatus(Status.PAGES_UPDATING);
 
             int tTries = 10;
-            int tTry = 0;
-            boolean tSuccess = false;
-            HttpURLConnection con = null;
-            while (tTry < tTries) {
-                con = (HttpURLConnection) tInfoJson.openConnection();
-                con.setRequestMethod("HEAD");
-                int status = con.getResponseCode();
-                if (status == 200) {
-                    tSuccess = true;
-                    break;
-                }
-                tTry++;
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException tExcpt) {
-                }
-            }
-            con.disconnect();
+            boolean tSuccess = _repoControl.checkAvilable(tInfoJson, tTries);
             if (!tSuccess) {
                 setStatus(Status.FAILED);
                 System.out.println("Failed to get " + tInfoJson.toString() + " after " + tTries);

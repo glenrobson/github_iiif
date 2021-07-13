@@ -75,15 +75,12 @@ public class JsonUpload extends JSONServlet {
 
         String tName = pReq.getParameter("id");
 
-        Repo tRepo = new Repo();
+        Repo tRepo = this.getRepoService();
         tRepo.setSession(pReq.getSession());
         Repository tRepoObj = tRepo.getRepo(tRequestURI[tRequestURI.length - 2]);
         RepositoryPath tPath = new RepositoryPath(tRepoObj, tType + "/" + tName);
 
         Part tFilePart = pReq.getPart("file");
-        long fileSize = tFilePart.getSize();
-        String fileName = tFilePart.getSubmittedFileName();
-
         Map<String,Object> tJson = (Map<String,Object>)JsonUtils.fromInputStream(tFilePart.getInputStream());
 
         if (tJson.containsKey("@id")) {
@@ -111,7 +108,7 @@ public class JsonUpload extends JSONServlet {
         sendJson(pRes, 200, tJson);
     }
 
-    // /upload/#{project}/manifests
+    // /upload/#{project}/manifests/manifest2.json
     protected void doDelete(final HttpServletRequest pReq, final HttpServletResponse pRes) throws ServletException, IOException {
         System.out.println("Request URI " + pReq.getRequestURI());
         String[] tRequestURI = pReq.getRequestURI().split("/");
@@ -119,7 +116,7 @@ public class JsonUpload extends JSONServlet {
 
         String tName = tRequestURI[tRequestURI.length - 1]; // manifests2.json
 
-        Repo tRepo = new Repo();
+        Repo tRepo = this.getRepoService();
         tRepo.setSession(pReq.getSession());
         Repository tRepoObj = tRepo.getRepo(tRequestURI[tRequestURI.length - 3]);
         System.out.println("Path: " + tRepoObj.generateId() + "/" + tType + "/" + tName);
