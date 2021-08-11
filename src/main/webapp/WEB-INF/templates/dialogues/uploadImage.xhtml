@@ -5,13 +5,13 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <form id="imageUpload" action="/tiler/#{project}" enctype="multipart/form-data" method="post">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Upload Image</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true"><i class="far fa-window-close"></i></span>
-        </button>
-      </div>
-      <div class="modal-body">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Upload Image</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true"><i class="far fa-window-close"></i></span>
+            </button>
+          </div>
+          <div class="modal-body">
               <input name="repo" type="hidden" id="repo" value="#{project}"/>
               <div class="form-group">
                   <label for="formFile" >Select image file:</label>
@@ -21,7 +21,7 @@
               <div class="form-group row" style="display:none">
                   <label for="formFile" class="col-sm-6 col-form-label">Name:</label>
                   <div class="col">
-                      <input type="text" class="form-control inline-form-el" id="name" name="id"  aria-describedby="nameHelp"/>
+                      <input type="text" class="form-control inline-form-el" id="name" name="id"  aria-describedby="nameHelp"  title="Image names can only contain letters, numbers or the following symbols - _ or . " pattern="[0-9a-zA-Z._-]+"/>
                   </div>
                   <div class="">
                       <small id="nameHelp" class="col form-text text-muted">
@@ -40,11 +40,11 @@
               </div>
               <div class="alert alert-primary" style="display: none" role="alert" id="image_messages">
               </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="submit" id="upload_image" class="btn btn-primary">Upload</button>
-      </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" id="upload_image" class="btn btn-primary">Upload</button>
+          </div>
       </form>
       <script>     
             var button = document.getElementById('upload_image');
