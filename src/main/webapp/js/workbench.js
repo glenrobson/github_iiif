@@ -128,6 +128,12 @@ function fileSelected(name) {
         } else {
             id = fileInput.files[0].name;
         }
+        // 100 MB
+        const mbNum = 1000000
+        const maxAllowedSize = 100 * mbNum;
+        if (fileInput.files[0].size > maxAllowedSize) {
+            showMessage("image_messages", "error", "Image is too big at " + (fileInput.files[0].size / mbNum).toFixed(2) + " MB. Current max size is: " + (maxAllowedSize / mbNum) + " MB.");
+        }
 
         let nameInput = document.getElementById('name');
         nameInput.value = id;
