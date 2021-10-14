@@ -26,6 +26,7 @@ import com.gdmrdigital.iiif.processor.ImageProcessor;
 import com.gdmrdigital.iiif.controllers.Repo;
 import com.gdmrdigital.iiif.model.github.RepositoryPath;
 import com.gdmrdigital.iiif.model.iiif.Manifest;
+import com.gdmrdigital.iiif.Config;
 
 import org.eclipse.egit.github.core.Repository;
 
@@ -66,7 +67,11 @@ public class ImageTiler extends JSONServlet {
 
 	public void init(final ServletConfig pConfig) throws ServletException {
 		super.init(pConfig);
-        _tmpDir = new File(System.getProperty("java.io.tmpdir")).getAbsoluteFile();
+        if (Config.getConfig().getStorage() == null) {
+            _tmpDir = new File(System.getProperty("java.io.tmpdir")).getAbsoluteFile();
+        } else {
+            _tmpDir = new File(Config.getConfig().getStorage());
+        }
     }
 
     protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
