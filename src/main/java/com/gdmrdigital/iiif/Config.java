@@ -26,6 +26,10 @@ public class Config {
 
     }
 
+    public String getStorage() {
+        return this.getConfig("storage");
+    }
+
     public String getClientSecret() {
         return getConfig("github_client_secret");
     }
