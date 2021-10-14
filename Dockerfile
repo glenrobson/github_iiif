@@ -9,7 +9,7 @@ RUN mvn $MVN_ARGS package
 # runnable container stage
 FROM tomcat:9-jre11 AS runstage
 # remove tomcat default webapps 
-RUN rm -r /usr/local/tomcat/webapps/*
+RUN rm -rf /usr/local/tomcat/webapps/*
 COPY docs  /usr/src/docs
 # copy SAS from build image
 COPY --from=buildstage /usr/src/workbench/target/github_iiif /usr/local/tomcat/webapps/ROOT
