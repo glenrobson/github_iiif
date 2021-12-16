@@ -63,7 +63,7 @@ public class HttpServletMocks {
                 pItems.put(key, value);
                 return null;
             }
-        }).when(tSession).setAttribute(anyString(), anyObject());
+        }).when(tSession).setAttribute(anyString(), any());
 
         return tSession;
     }
