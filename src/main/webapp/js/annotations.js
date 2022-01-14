@@ -87,6 +87,14 @@ function showAnnotation(url, retrieved) {
         GitHub.title = "View on GitHub";
         GitHub.target = "_blank"
         actionsBar.appendChild(GitHub);
+
+        Annona = document.createElement("a");
+        Annona.href = "https://" + user + ".github.io/" + repo + "/plugins/annona/?iiif-content=" + url;
+        Annona.className = "btn btn-secondary mb-2";
+        Annona.innerHTML = 'Annona';
+        Annona.title = "View with Annona";
+        Annona.target = "_blank"
+        actionsBar.appendChild(Annona);
     }
 }
 
