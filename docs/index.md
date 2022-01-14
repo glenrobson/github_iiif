@@ -1,37 +1,46 @@
-## My IIIF Workbench
+{{ site.description }}
 
-You can use the [editor on GitHub](https://github.com/glenrobson/iiif-training-workbench/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+### IIIF Images:
+<script src="{{ '/plugins/js/image.js' | absolute_url }}" ></script>
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+<script
+			  src="https://code.jquery.com/jquery-3.5.1.min.js"
+			  integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+			  crossorigin="anonymous"></script>
+<link rel="stylesheet" href="plugins/justified/justifiedGallery.min.css" />
+<script src="plugins/justified/jquery.justifiedGallery.min.js"></script>
 
-### Markdown
+<script>
+{% assign files = site.static_files | where_exp: "image", "image.path contains '/images/'" |where_exp: "image", "image.path contains '/info.json'"   %}
+{% for img_file in files %}
+    addToGallery('gallery', '{{img_file.path | absolute_url}}', 300,300);
+{% endfor %}
+</script>
+<div id="gallery">
+        
+</div>
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+<script>
+    $("#gallery").justifiedGallery({
+        rowHeight: 300
+    });
+</script>
 
-```markdown
-Syntax highlighted code block
 
-# Header 1
-## Header 2
-### Header 3
+### Manifests:
+{% assign manifests = site.static_files | where_exp: "manifest", "manifest.path contains '/manifests/'"  |where_exp: "manifest", "manifest.extname == '.json'" | where_exp: "manifest", "manifest.path != '/manifests/collection.json' " %}
 
-- Bulleted
-- List
+{% for file in manifests %}
+ * [{{ file.path | replace: "/manifests/", ""}}]({{ file.path | absolute_url }}) 
+    * [View in Mirador](https://projectmirador.org/embed/?iiif-content={{ file.path | absolute_url}})
+    * [View in UV](http://universalviewer.io/examples/#?c=&m=&s=&cv=&manifest={{ file.path | absolute_url}})
+{% endfor %}
 
-1. Numbered
-2. List
+### Annotations
 
-**Bold** and _Italic_ and `Code` text
+{% assign annotations = site.static_files | where_exp: "annotation", "annotation.path contains '/annotations/'"  |where_exp: "annotation", "annotation.extname == '.json'"  | where_exp: "annotation", "annotation.path != '/annotations/collection.json'" %}
 
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/glenrobson/iiif-training-workbench/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+{% for file in annotations %}
+ * [{{ file.path | replace: "/annotations/", ""}}]({{ file.path | absolute_url }})
+    * [View in Annona](plugins/annona/?iiif-content={{ file.path | absolute_url }})
+{% endfor %}
