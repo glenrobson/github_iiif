@@ -45,8 +45,9 @@
                 } else {
                     url = data["@id"];
                 }
-                fetch(url, { method: 'HEAD' })
+                fetch(url + '?' + performance.now(), { method: 'HEAD' })
                     .then(function (response){
+                        data.id =  url + '?' + performance.now()
                         addManifest(data, -1, [], response.headers.get('last-modified'));
                     });
             }

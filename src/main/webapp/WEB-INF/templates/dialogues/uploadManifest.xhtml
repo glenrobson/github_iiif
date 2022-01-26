@@ -4,7 +4,7 @@
         xmlns="http://www.w3.org/1999/xhtml">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <form id="manifestUpload" action="/upload/#{project}/manifests" enctype="multipart/form-data" method="post">
+      <form id="manifestUploadForm" action="/upload/#{project}/manifests" enctype="multipart/form-data" method="post">
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Upload Manifest</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -47,14 +47,14 @@
                 addManifest(data, -1, []);
             }
 
-            var form = document.forms.namedItem("manifestUpload");
-            form.addEventListener('submit', function(ev) {
+            var manifestUploadForm = document.forms.namedItem("manifestUploadForm");
+            manifestUploadForm.addEventListener('submit', function(ev) {
                 var original = setLoading("upload_manifest","Uploading");
 
-                data = new FormData(form);
+                data = new FormData(manifestUploadForm);
 
                 var oReq = new XMLHttpRequest();
-                oReq.open("POST", form.action, true);
+                oReq.open("POST", manifestUploadForm.action, true);
                 oReq.onload = function(oEvent) {
                     if (oReq.status == 200) {
                         
