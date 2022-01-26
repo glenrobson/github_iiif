@@ -306,10 +306,7 @@ function addManifest(item, index, manifests, lastmod=null) {
                 setTimeout(addManifest, 1000, item, index, manifests, lastmod);
                 throw new Error('Manifest not updated yet ' + url);
             }
-            for (const header of response.headers.keys()) {
-                console.log(header + " => " + response.headers.get(header));
-            }
-            console.log(response.url);
+            console.log('Got new a response. Original ' + lastmod + ' current ' + response.headers.get('last-modified') + ' from URL ' + url);
             return response.json();
       }).then(function (data) {
             if (url.indexOf('?') != -1) {
