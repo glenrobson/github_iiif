@@ -276,10 +276,6 @@ function addManifest(item, index, manifests, lastmod=null) {
         url = item["@id"];
     }
 
-    var reqHeaders = new Headers();
-    reqHeaders.append('pragma', 'no-cache');
-    reqHeaders.append('cache-control', 'no-cache');
-
     var config = {
       method: 'GET',
       mode: 'cors',
@@ -301,6 +297,11 @@ function addManifest(item, index, manifests, lastmod=null) {
                 }
             }
             if (lastmod != null && lastmod === response.headers.get('last-modified')) {
+                console.log('Not updated ' + url);
+                if (url.indexOf('?') != -1) {
+                    url = url.split('?')[0];
+                }
+                item.id = url + "?" + performance.now();
                 // If etag is the same then request again
                 setTimeout(addManifest, 1000, item, index, manifests, lastmod);
                 throw new Error('Manifest not updated yet ' + url);
