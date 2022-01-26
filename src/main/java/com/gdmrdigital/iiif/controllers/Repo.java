@@ -345,6 +345,16 @@ public class Repo extends Session {
         return tService.setContents(pPath.getRepo(), tFile);
     }
 
+    public void replaceFile(final RepositoryPath pRepoPath, String pContent) throws IOException {
+        List<RepositoryContents> tGitHubFile = this.getFiles(pRepoPath);
+
+        if (tGitHubFile.size() != 1) {
+            throw new IOException("Expected 1 file called " + pRepoPath + " but found " + tGitHubFile.toString());
+        } else {
+            this.uploadFile(pRepoPath, pContent, tGitHubFile.get(0).getSha());
+        }
+    }
+
     public void deleteFile(final RepositoryPath pPath) throws IOException {
         try {
             ExtendedContentService tService = this.getContentService();
