@@ -108,6 +108,35 @@ public class JsonUpload extends JSONServlet {
         sendJson(pRes, 200, tJson);
     }
 
+    /**
+     * Replace content in GitHub.
+     */
+    protected void doPut(final HttpServletRequest pReq, final HttpServletResponse pRes) throws ServletException, IOException {
+        String[] tRequestURI = pReq.getRequestURI().split("/");
+        String tType = tRequestURI[tRequestURI.length - 1];
+
+        String tName = pReq.getParameter("id");
+
+        Repo tRepo = this.getRepoService();
+        tRepo.setSession(pReq.getSession());
+        Repository tRepoObj = tRepo.getRepo(tRequestURI[tRequestURI.length - 2]);
+        RepositoryPath tPath = new RepositoryPath(tRepoObj, tType + "/" + tName);
+
+        Part tFilePart = pReq.getPart("file");
+        Map<String,Object> tJson = (Map<String,Object>)JsonUtils.fromInputStream(tFilePart.getInputStream());
+
+        if (tJson.containsKey("@id")) {
+            tJson.put("@id", tPath.getWeb());
+        } else if (tJson.containsKey("id")) {
+            tJson.put("id", tPath.getWeb());
+        }
+        
+        tRepo.replaceFile(tPath, JsonUtils.toPrettyString(tJson));
+
+        sendJson(pRes, 200, tJson);
+    }
+
+
     // /upload/#{project}/manifests/manifest2.json
     protected void doDelete(final HttpServletRequest pReq, final HttpServletResponse pRes) throws ServletException, IOException {
         System.out.println("Request URI " + pReq.getRequestURI());

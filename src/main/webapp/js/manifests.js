@@ -146,6 +146,7 @@ function showManifest(manifest, retrieved) {
         let urlSplit = manifest["@id"].split("/");
         let user = urlSplit[2].split(".")[0];
         let repo = urlSplit[3];
+        let filename = urlSplit[urlSplit.length - 1];
         let path = urlSplit.splice(4).join('/');
 
         // https://github.com/iiif-test/test3/edit/main/manifests/manifest2.json
@@ -153,9 +154,20 @@ function showManifest(manifest, retrieved) {
         edit.href = "https://github.com/" + user + "/" + repo + "/edit/main/" + path;
         edit.className = "btn  btn-secondary mb-2";
         edit.innerHTML = '<i class="far fa-edit"></i>';//"Open";
-        edit.title = "Edit manifest";
+        edit.title = "Edit manifest in GitHub";
         edit.target = "_blank"
         actionsBar.appendChild(edit);
+
+        replace = document.createElement("a");
+        replace.className = "btn btn-secondary mb-2";
+        replace.innerHTML = '<i class="fas fa-file-upload"></i>';
+        replace.title = "Replace Manifest";
+        replace.addEventListener("click", function() {
+            let name = document.getElementById('replace_name');
+            name.value = filename; 
+            $('#manifestReplace').modal('show');
+        });
+        actionsBar.appendChild(replace);
 
         remove = document.createElement("a");
         remove.className = "btn  btn-secondary mb-2";
@@ -256,17 +268,49 @@ function createSpinner() {
     return div;
 }
 
-function addManifest(item, index, manifests) {
+function addManifest(item, index, manifests, lastmod=null) {
     let url = "";
     if ('id' in item) {
         url = item.id;
     } else {
         url = item["@id"];
     }
-    $.ajax({
-        url: url,
-        type: 'GET',
-        success: function(data) {
+
+    var reqHeaders = new Headers();
+    reqHeaders.append('pragma', 'no-cache');
+    reqHeaders.append('cache-control', 'no-cache');
+
+    var config = {
+      method: 'GET',
+      mode: 'cors',
+    };
+
+    fetch(url, config)
+      .then(function(response) {
+            if (!response.ok) {
+                if (response.status === 404) {
+                    if (url.indexOf('?') != -1) {
+                        url = url.split('?')[0];
+                    }
+                    item.id = url + "?" + performance.now();
+                    // wait then try again
+                    setTimeout(addManifest, 1000, item, index, manifests);
+                    throw new Error('Manifest not deployed yet ' + url);
+                } else {
+                    throw new Error('Failed to get "' + url + '". Got response ' + response.status);
+                }
+            }
+            if (lastmod != null && lastmod === response.headers.get('last-modified')) {
+                // If etag is the same then request again
+                setTimeout(addManifest, 1000, item, index, manifests, lastmod);
+                throw new Error('Manifest not updated yet ' + url);
+            }
+            for (const header of response.headers.keys()) {
+                console.log(header + " => " + response.headers.get(header));
+            }
+            console.log(response.url);
+            return response.json();
+      }).then(function (data) {
             if (url.indexOf('?') != -1) {
                 if ('@id' in item) {
                     delete item.id;
@@ -275,20 +319,9 @@ function addManifest(item, index, manifests) {
                 }
             }
             showManifest(data,true);
-        },
-        error: function(data) {
-            console.log('Failed to get manifest ' + url + ' due to ' + data.status);
-            if (data.status === 404) {
-                if (url.indexOf('?') != -1) {
-                    url = url.split('?')[0];
-                }
-                item.id = url + "?" + performance.now();
-                // wait then try again
-                setTimeout(addManifest, 1000, item, index, manifests);
-            }
-        }
-    });
-
+      }).catch(function (error) {
+            console.log('Failed to get manifest ' + url + ' due to ' + error.message);
+      });
 }
 
 function showManifests(data) {

@@ -1,0 +1,84 @@
+<!-- Modal -->
+<div class="modal fade" id="manifestReplace" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"
+        xmlns:c="http://java.sun.com/jsp/jstl/core"
+        xmlns="http://www.w3.org/1999/xhtml">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form id="manifestReplace" action="/upload/#{project}/manifests" enctype="multipart/form-data" method="put">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Replace Manifest</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true"><i class="far fa-window-close"></i></span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <input name="repo" type="hidden" id="repo" value="#{project}"/>
+              <div class="form-group">
+                  <label for="formFile" >Select file:</label>
+
+                  <input name="file" type="file" class="form-control-file" id="manifestFile" accept="application/json, application/ld+json" onchange="fileSelected('manifestFile')" />
+              </div>
+              <div class="form-group row">
+                  <label for="formFile" class="col-sm-6 col-form-label">Name:</label>
+                  <div class="col">
+                      <input type="text" class="form-control inline-form-el" id="replace_name" name="id"  readonly="readonly"/>
+                  </div>
+              </div>
+              <div class="alert alert-primary" style="display: none" role="alert" id="manifest_replace_messages">
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" id="replace_manifest" class="btn btn-primary">Upload</button>
+          </div>
+      </form>
+      <script>     
+            var button = document.getElementById('replace_manifest');
+
+            function replaceManifest(data) {
+                showManifest(data,false);
+                $('#manifestReplace').modal('hide');
+                // Go and get manifest and replace once available
+                let url = "";
+                if ('id' in data) {
+                    url = data.id;
+                } else {
+                    url = data["@id"];
+                }
+                fetch(url, { method: 'HEAD' })
+                    .then(function (response){
+                        addManifest(data, -1, [], response.headers.get('last-modified'));
+                    });
+            }
+
+            var form = document.forms.namedItem("manifestReplace");
+            form.addEventListener('submit', function(ev) {
+                var original = setLoading("replace_manifest","Uploading");
+
+                data = new FormData(form);
+
+                var oReq = new XMLHttpRequest();
+                oReq.open("PUT", form.action, true);
+                oReq.onload = function(oEvent) {
+                    if (oReq.status == 200) {
+                        
+                        clearLoading("replace_manifest", original);
+                        replaceManifest(JSON.parse(oEvent.target.responseText));
+                    } else {
+                        clearLoading("replace_manifest", original);
+                        if (data.status === 500) {
+                            showMessage("manifest_replace_messages", "error", data.statusText);
+                        } else {
+                            showMessage("manifest_replace_messages", "error", data.message);
+                        }
+                    }
+                };
+
+                oReq.send(data);
+                ev.preventDefault();
+            }, false);
+                        
+       </script>
+    </div>
+  </div>
+</div>
