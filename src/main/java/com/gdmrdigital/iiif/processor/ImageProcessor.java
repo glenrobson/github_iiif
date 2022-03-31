@@ -91,6 +91,10 @@ public class ImageProcessor extends Thread {
             setStatus(Status.FAILED);
             System.err.println("Failed to create and upload tiles due to: " + tExcpt);
             tExcpt.printStackTrace();
+        } catch (Exception tExcpt) {
+            setStatus(Status.FAILED);
+            System.err.println("Failed to create and upload tiles due to: " + tExcpt);
+            tExcpt.printStackTrace();
         }
     }
     
