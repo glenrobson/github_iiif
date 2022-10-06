@@ -5,6 +5,7 @@ import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.IRepositoryIdProvider;
 import org.eclipse.egit.github.core.client.GitHubRequest;
 import org.eclipse.egit.github.core.IRepositoryIdProvider;
+import org.eclipse.egit.github.core.client.RequestException;
 
 import static org.eclipse.egit.github.core.client.IGitHubConstants.SEGMENT_REPOS;
 
@@ -104,7 +105,14 @@ public class ExtendedRepositoryServices extends RepositoryService {
         System.out.println(tParams);
 
         client.setHeaderAccept("application/vnd.github.switcheroo-preview+json");
-        return (SiteStatus)client.put(uri.toString(), tParams, SiteStatus.class);
+        try {
+            return (SiteStatus)client.put(uri.toString(), tParams, SiteStatus.class);
+        } catch (RequestException tExcpt) {
+            // If this method is called straight after creating the repo
+            // then the Certificate hasn't been created and an exception is thrown...
+            System.err.println("Failed to set enforceHTTPs on " + pRepo.generateId() + " due to: " + tExcpt.getMessage());
+        }
+        return null;
     }
 
     public class Topics {
