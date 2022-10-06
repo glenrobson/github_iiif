@@ -87,6 +87,26 @@ public class ExtendedRepositoryServices extends RepositoryService {
         return (SiteStatus)client.post(uri.toString(), tParams, SiteStatus.class);
     }
 
+    public SiteStatus pagesEnforceHttps(final IRepositoryIdProvider pRepo, final String pBranch, final String pPath) throws IOException {
+        //-H "Accept: application/vnd.github.switcheroo-preview+json" \
+        // PUT
+        //  https://api.github.com/repos/octocat/hello-world/pages 
+        // -d '{"cname":"octocatblog.com","source":{"branch":"main","path":"/"}}'
+
+        StringBuilder uri = new StringBuilder(SEGMENT_REPOS);
+		uri.append("/").append(pRepo.generateId());
+		uri.append("/pages");
+        System.out.println("Creating pages URI: " + uri.toString());
+
+        Map<String, Object> tParams = new HashMap<String,Object>();
+        tParams.put("source", new Source(pBranch, pPath).toMap());
+        tParams.put("https_enforced", true);
+        System.out.println(tParams);
+
+        client.setHeaderAccept("application/vnd.github.switcheroo-preview+json");
+        return (SiteStatus)client.put(uri.toString(), tParams, SiteStatus.class);
+    }
+
     public class Topics {
         protected List<String> _names = null;
 
