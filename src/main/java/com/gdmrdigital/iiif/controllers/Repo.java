@@ -411,6 +411,7 @@ public class Repo extends Session {
         uploadDirectory(tLocalCopy, "/", Config.getConfig().getRepoTemplate());
 
         tService.createPages(tLocalCopy, tLocalCopy.getDefaultBranch(), "/");
+        tService.pagesEnforceHttps(tLocalCopy, tLocalCopy.getDefaultBranch(), "/");
         return tLocalCopy;
     }
 
