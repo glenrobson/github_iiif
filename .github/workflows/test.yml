@@ -17,7 +17,7 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-# May need to setup chrome: https://github.com/browser-actions/setup-chrome          
+
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
@@ -25,8 +25,14 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      # May need to setup chrome: https://github.com/browser-actions/setup-chrome          
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1     
-        
+
+      - name: Install Chrome Driver  
+        run: ./github/bin/chromeDriver.sh 
+
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots verify
+        with:
+            path: "$PATH:chromedriver-linux64/"
