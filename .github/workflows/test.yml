@@ -31,10 +31,10 @@ jobs:
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1     
         with:
-            chrome-version: env.chrome-version
+            chrome-version: ${{  env.chrome-version }}
 
       - name: Install Chrome Driver  
-        run: .github/bin/chromeDriver.sh env.chrome-version
+        run: .github/bin/chromeDriver.sh "${{ env.chrome-version }}"
 
       - name: Build with Maven
         run: export PATH="$PATH:`pwd`/chromedriver-linux64/" && echo "Path is $PATH" && mvn --batch-mode --update-snapshots verify
