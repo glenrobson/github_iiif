@@ -30,7 +30,7 @@ jobs:
         uses: browser-actions/setup-chrome@v1     
 
       - name: Install Chrome Driver  
-        run: ./github/bin/chromeDriver.sh 
+        run: .github/bin/chromeDriver.sh 
 
       - name: Build with Maven
         run: export PATH="$PATH:`pwd`/chromedriver-linux64/" && mvn --batch-mode --update-snapshots verify
