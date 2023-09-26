@@ -33,6 +33,4 @@ jobs:
         run: ./github/bin/chromeDriver.sh 
 
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify
-        with:
-            path: "$PATH:chromedriver-linux64/"
+        run: export PATH="$PATH:`pwd`/chromedriver-linux64/" && mvn --batch-mode --update-snapshots verify
