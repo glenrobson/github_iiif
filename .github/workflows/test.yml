@@ -4,7 +4,7 @@ name: mvn-test
 
 on: [push]
 
-env:
+#env:
  # chrome-version: "119.0.6029.0"
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
