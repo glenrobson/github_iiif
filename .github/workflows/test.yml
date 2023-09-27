@@ -46,8 +46,9 @@ jobs:
 #      - name: Check driver version
  #       run: chromedriver --version  
 
+      - run: sudo apt-get install xvfb
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify
+        run: xvfb-run --auto-servernum mvn --batch-mode --update-snapshots verify
         env:
             SE_BROWSER_PATH: "${{ github.workspace }}/chrome/chrome-linux64"
 
