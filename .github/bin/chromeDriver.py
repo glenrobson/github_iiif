@@ -17,7 +17,7 @@ def download_and_unzip(url, extract_to='.'):
 
 if __name__ == "__main__":
     version = "latest"
-    if len(sys.args) == 2:
+    if len(sys.argv) == 2:
         version = sys.argv[1]
 
 
