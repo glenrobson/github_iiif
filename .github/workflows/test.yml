@@ -31,7 +31,7 @@ jobs:
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1     
         with:
-            chrome-version: ${{  env.chrome-version }}
+            chrome-version: 1201513
 
       - name: Install Chrome Driver  
         run: .github/bin/chromeDriver.sh "${{ env.chrome-version }}"
