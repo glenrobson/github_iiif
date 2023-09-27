@@ -32,7 +32,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build with Maven
-        run: set && mvn --batch-mode --update-snapshots verify
+        run: mvn --batch-mode --update-snapshots verify
         env:
             SE_BROWSER_PATH: "${{ github.workspace }}/chrome/chrome-linux64"
             PATH: ":${{ github.workspace }}/chrome/chromedriver-linux64:${{ github.workspace }}/chrome/chrome-linux64:$PATH"
