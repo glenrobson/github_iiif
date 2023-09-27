@@ -15,9 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-   #   - name: Install Chrome Driver  
-    #    run: python .github/bin/chromeDriver.py 
-
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
@@ -31,22 +28,9 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-#      - name: Setup path
-#        run: echo "${{ github.workspace }}/chrome/chromedriver-linux64:${{ github.workspace }}/chrome/chrome-linux64" >> $GITHUB_PATH
+      - name: Install xvfb
+        run: sudo apt-get install xvfb
 
-#      - name: Set permissions
-#        run: chmod 755 chrome/chrome-linux64/chrome && chmod 755 chrome/chromedriver-linux64/chromedriver 
-
-#      - name: Start chrome
- #       run: chrome --headless --disable-gpu    
-
-#      - name: Print path
- #       run: echo "$PATH"
-
-#      - name: Check driver version
- #       run: chromedriver --version  
-
-      - run: sudo apt-get install xvfb
       - name: Build with Maven
         run: xvfb-run --auto-servernum mvn --batch-mode --update-snapshots verify
         env:
