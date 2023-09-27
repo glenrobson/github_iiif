@@ -34,8 +34,11 @@ jobs:
       - name: Setup path
         run: echo "${{ github.workspace }}/chrome/chromedriver-linux64:${{ github.workspace }}/chrome/chrome-linux64" >> $GITHUB_PATH
 
+      - name: Start chrome
+        run: chrome --headless --disable-gpu    
+
       - name: Print path
-        run: echo "$Path"
+        run: echo "$PATH"
 
       - name: Check driver version
         run: chromedriver --version  
