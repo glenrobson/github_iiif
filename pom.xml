@@ -245,9 +245,6 @@
                     <!-- configuration properties will go here -->
                     <jsSrcDir>${basedir}/src/main/webapp/js</jsSrcDir>
                     <jsTestSrcDir>${basedir}/src/test/javascript</jsTestSrcDir>
-                    <!--<specIncludes>
-                        <include>spec/**/*.js</include> 
-                    </specIncludes>-->
                     <webDriverClassName>org.openqa.selenium.chrome.ChromeDriver</webDriverClassName>
                     <haltOnFailure>false</haltOnFailure>
                 </configuration>
