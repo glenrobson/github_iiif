@@ -34,6 +34,6 @@ jobs:
       - name: Build with Maven
         run: set && mvn --batch-mode --update-snapshots verify
         env:
-            SE_BROWSER_PATH: "`pwd`/chrome/chrome-linux64"
-            PATH: "`pwd`/chrome/chromedriver-linux64:`pwd`/chrome/chrome-linux64:$PATH"
+            SE_BROWSER_PATH: "${{ github.workspace }}/chrome/chrome-linux64"
+            PATH: ":${{ github.workspace }}/chrome/chromedriver-linux64:${{ github.workspace }}/chrome/chrome-linux64:$PATH"
 
