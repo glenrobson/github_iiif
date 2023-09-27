@@ -5,7 +5,7 @@ name: mvn-test
 on: [push]
 
 env:
-  chrome-version: "119.0.6029.0"
+  chrome-version: "119.0.6033.0"
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -37,4 +37,8 @@ jobs:
         run: .github/bin/chromeDriver.sh "${{ env.chrome-version }}"
 
       - name: Build with Maven
-        run: export PATH="$PATH:`pwd`/chromedriver-linux64/" && echo "Path is $PATH" && mvn --batch-mode --update-snapshots verify
+        run: echo "Path is $PATH - Browser path $SE_BROWSER_PATH" && mvn --batch-mode --update-snapshots verify
+        env:
+            SE_BROWSER_PATH: /opt/hostedtoolcache/chromium/latest/x64/chrome
+            PATH: "$PATH:`pwd`/chromedriver-linux64/"
+
