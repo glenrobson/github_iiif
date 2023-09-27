@@ -34,6 +34,9 @@ jobs:
       - name: Setup path
         run: echo "${{ github.workspace }}/chrome/chromedriver-linux64:${{ github.workspace }}/chrome/chrome-linux64" >> $GITHUB_PATH
 
+      - name: Set permissions
+        run: chmod 755 chrome/chrome-linux64/chrome && chmod 755 chrome/chromedriver-linux64/chromedriver 
+
       - name: Start chrome
         run: chrome --headless --disable-gpu    
 
