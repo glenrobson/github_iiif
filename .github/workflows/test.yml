@@ -34,6 +34,12 @@ jobs:
       - name: Setup path
         run: echo "${{ github.workspace }}/chrome/chromedriver-linux64:${{ github.workspace }}/chrome/chrome-linux64" >> $GITHUB_PATH
 
+      - name: Print path
+        run: echo "$Path"
+
+      - name: Check driver version
+        run: chromedriver --version  
+
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots verify
         env:
