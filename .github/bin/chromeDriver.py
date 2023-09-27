@@ -29,16 +29,21 @@ if __name__ == "__main__":
     chrome_url = ""
     driver_url = ""
     if version == "latest":
-        latest = data['versions'][:-1]
+        latest = data['versions'][-1]
         print (f"Using version {latest['version']}")
-        chrome_url = findPlatform(latest['chrome'], 'linux64')
-        driver_url = findPlatform(latest['chromedriver'], 'linux64')
+        chrome_url = findPlatform(latest['downloads']['chrome'], 'linux64')
+        driver_url = findPlatform(latest['downloads']['chromedriver'], 'linux64')
     else:
+        print (f"looking for version '{version}'")
         for ver in data['versions']:
             if ver['version'] == version or ver['revision'] == version:    
-                chrome_url = findPlatform(ver['chrome'], 'linux64')
-                driver_url = findPlatform(ver['chromedriver'], 'linux64')
+                chrome_url = findPlatform(ver['downloads']['chrome'], 'linux64')
+                driver_url = findPlatform(ver['downloads']['chromedriver'], 'linux64')
                 break
+            
+        if not chrome_url or not driver_url:
+            sys.exit(f"Didn't find chrome url '{chrome_url}' or driver url '{driver_url}'")
+
 
     app_dir = 'chrome'
     os.mkdir(app_dir)
