@@ -31,9 +31,11 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Setup path
+        run: echo "${{ github.workspace }}/chrome/chromedriver-linux64:${{ github.workspace }}/chrome/chrome-linux64" >> $GITHUB_PATH
+
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots verify
         env:
             SE_BROWSER_PATH: "${{ github.workspace }}/chrome/chrome-linux64"
-            PATH: ":${{ github.workspace }}/chrome/chromedriver-linux64:${{ github.workspace }}/chrome/chrome-linux64:$PATH"
 
