@@ -37,15 +37,8 @@ function findValue(parentnode, key) {
     return response;
 }
 
-function getId(manifest){
-    if ('@id' in manifest) {
-        return manifest['@id']; 
-    } else {
-        return manifest.id;
-    }
-}
-
 function showManifest(manifest, retrieved) {
+    manifest = IIIFUpgrader.upgrade(manifest);
     let manifestDiv = document.getElementById('manifests_div');
     let ul = null;
     if (manifestDiv.children.length != 1) {
@@ -56,34 +49,28 @@ function showManifest(manifest, retrieved) {
     } else {
         ul = manifestDiv.children[0];
     }
-    let manifest_id = getId(manifest);
-
     var li = document.createElement("li");
-    if (document.getElementById(manifest_id) != null) {
-        li = document.getElementById(manifest_id);
+    if (document.getElementById(manifest.id) != null) {
+        li = document.getElementById(manifest.id);
         li.innerHTML = '';
     } else {
-        li.id = manifest_id;
+        li.id = manifest.id;
         li.className = "manifestSummary";
     }
 
     var thumbnail_img = "";
     var img = document.createElement("img");
     img.className = "align-self-center mr-3 media-img";
-    // TODO replace with v3 thumb code
-    manifest_v3 = IIIFUpgrader.upgrade(manifest);
     const helper = VaultHelpers.createThumbnailHelper();
 
-    helper.getBestThumbnailAtSize(manifest_v3, {
+    helper.getBestThumbnailAtSize(manifest, {
               width: 200,
               height: 100
             })
             .then((thumb) => {
-              console.log(thumb.best);
               if (thumb.best) {
                 // Render it out.
                 img.src = thumb.best.id;
-                console.log(thumb);
               }
             });
     /*if ('thumbnail' in manifest && manifest.thumbnail) {
@@ -126,7 +113,6 @@ function showManifest(manifest, retrieved) {
     openImg.className = "align-self-center";
     openImg.appendChild(img);
 
-
     mediaHeaderDiv= document.createElement("div");
     mediaHeaderDiv.className = "media-header-div";
 
@@ -139,24 +125,26 @@ function showManifest(manifest, retrieved) {
     heading = document.createElement("h5");
     mediaHeader.appendChild(heading);
     if ('label' in manifest && manifest.label) {
-        heading.innerHTML = findValue(manifest, "label");
+        heading.innerHTML = VaultHelpers.getValue(manifest.label);
     } else {
         heading.innerHTML = "Missing Manifest label";
     }
     //mediaBody.appendChild(mediaHeader);
 
-    if ('description' in manifest && manifest.description) {
+    if ('summary' in manifest && manifest.summary) {
         mediaContent = document.createElement("p");
         mediaContent.className = "";
-        mediaContent.innerHTML = findValue(manifest, "description");
+        mediaContent.name = "description";
+        mediaContent.innerHTML = VaultHelpers.getValue(manifest.summary);
         mediaBody.appendChild(mediaContent);
     }
 
-    if ('attribution' in manifest && manifest.attribution) {
-        var attribution = findValue(manifest, "attribution");
+    if ('requiredStatement' in manifest && manifest.requiredStatement && manifest.requiredStatement.value) {
+        var attribution = VaultHelpers.getValue(manifest.requiredStatement.value);
 
         mediaContent = document.createElement("p");
         mediaContent.className = "";
+        mediaContent.name = "attribution"
         mediaContent.innerHTML = attribution;
         mediaBody.appendChild(mediaContent);
     }
@@ -166,11 +154,11 @@ function showManifest(manifest, retrieved) {
     mediaBody.appendChild(actionsBar);
 
     if (retrieved) {
-        actionsBar.appendChild(setupContentState(manifest_id, "View manifest JSON"));
+        actionsBar.appendChild(setupContentState(manifest.id, "View manifest JSON"));
     }
 
-    if (manifest_id.indexOf("github.io") != -1) {
-        let urlSplit = manifest_id.split("/");
+    if (manifest.id.indexOf("github.io") != -1) {
+        let urlSplit = manifest.id.split("/");
         let user = urlSplit[2].split(".")[0];
         let repo = urlSplit[3];
         let filename = urlSplit[urlSplit.length - 1];
@@ -218,7 +206,7 @@ function showManifest(manifest, retrieved) {
     mirador = document.createElement("a");
     mirador.className = "btn btn-secondary mb-2";
     if (retrieved) {
-        mirador.href = "https://projectmirador.org/embed/?iiif-content=" +  manifest["@id"]
+        mirador.href = "https://projectmirador.org/embed/?iiif-content=" +  manifest.id;
         mirador.innerHTML = '<img class="logo_button" src="/images/mirador-logo.svg"/>';
         mirador.title = "View in Mirador";
         mirador.target = "_blank"
@@ -231,7 +219,7 @@ function showManifest(manifest, retrieved) {
     uv = document.createElement("a");
     uv.className = "btn btn-secondary mb-2";
     if (retrieved) {
-        uv.href = "http://universalviewer.io/examples/#?c=&m=&s=&cv=&manifest=" +  manifest["@id"]
+        uv.href = "http://universalviewer.io/examples/#?c=&m=&s=&cv=&manifest=" +  manifest.id;
         uv.innerHTML = '<img class="logo_button" src="/images/uv-logo.png"/>';
         uv.title = "View in Universal Viewer";
         uv.target = "_blank"
@@ -241,13 +229,9 @@ function showManifest(manifest, retrieved) {
     }
     actionsBar.appendChild(uv);
 
-    if ('logo' in manifest) {
-        var tURL = "";
-        if (typeof manifest.logo === 'object' && '@id' in manifest.logo) {
-            tURL = manifest.logo['@id'];
-        } else if (typeof manifest.logo === 'string') {
-            tURL = manifest.logo;
-        }
+    if (manifest.provider && manifest.provider[0].logo) {
+        let logoEl = manifest.provider[0].logo[0];
+        var tURL = logoEl.id;
         if (tURL) {
             var logo = document.createElement("img");
             logo.className = "logo";

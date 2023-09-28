@@ -1,4 +1,5 @@
 {
+    "@context": "http://iiif.io/api/presentation/3/context.json",
     "id": "https://iiif-test.github.io/test2/images/manifest_v3.json",
     "label": {
         "en": [
@@ -6,7 +7,37 @@
         ]
     },
     "type": "Manifest",
-    "@context": "http://iiif.io/api/presentation/3/context.json",
+    "summary": { 
+        "en": [ "This is a summary of the object." ] 
+    },
+    "requiredStatement": {
+        "label": { "en": [ "Attribution" ] },
+        "value": { "en": [ "Provided courtesy of Example Institution" ] }
+    },
+    "provider": [
+        {
+          "id": "https://example.org/about",
+          "type": "Agent",
+          "label": { "en": [ "Example Organization" ] },
+          "homepage": [
+            {
+              "id": "https://example.org/",
+              "type": "Text",
+              "label": { "en": [ "Example Organization Homepage" ] },
+              "format": "text/html"
+            }
+          ],
+          "logo": [
+            {
+              "id": "https://example.org/images/logo.png",
+              "type": "Image",
+              "format": "image/png",
+              "height": 100,
+              "width": 120
+            }
+          ]
+        }
+    ],
     "items": [
         {
             "width": 4032,

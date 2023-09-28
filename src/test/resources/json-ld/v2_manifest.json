@@ -10,6 +10,7 @@
   } ],
   "license" : "https://creativecommons.org/licenses/by/3.0/",
   "attribution" : "[Click to edit attribution]",
+  "logo": "http://example.org/logos/institution1.jpg",
   "sequences" : [ {
     "@id" : "http://80afbe30-f010-4829-b453-97fdb89ee967",
     "@type" : "sc:Sequence",
