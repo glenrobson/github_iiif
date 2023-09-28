@@ -1,0 +1,99 @@
+{
+  "@context" : "http://iiif.io/api/presentation/2/context.json",
+  "@id" : "https://iiif-test.github.io/Presentation2023/manifests/manifest-combined.json",
+  "@type" : "sc:Manifest",
+  "label" : "[Click to edit label]",
+  "metadata" : [ ],
+  "description" : [ {
+    "@value" : "[Click to edit description]",
+    "@language" : "en"
+  } ],
+  "license" : "https://creativecommons.org/licenses/by/3.0/",
+  "attribution" : "[Click to edit attribution]",
+  "sequences" : [ {
+    "@id" : "http://80afbe30-f010-4829-b453-97fdb89ee967",
+    "@type" : "sc:Sequence",
+    "label" : [ {
+      "@value" : "Normal Sequence",
+      "@language" : "en"
+    } ],
+    "canvases" : [ {
+      "@id" : "http://7956e54f-c0e3-4fac-9eb2-60a9d9b3e90b",
+      "@type" : "sc:Canvas",
+      "label" : "Empty canvas",
+      "height" : 1619,
+      "width" : 5072,
+      "images" : [ {
+        "@context" : "http://iiif.io/api/presentation/2/context.json",
+        "@id" : "http://37864027-2ee6-42d4-970b-d8c88c6001d7",
+        "@type" : "oa:Annotation",
+        "motivation" : "sc:painting",
+        "resource" : {
+          "@id" : "https://iiif-test.github.io/Presentation2023/images/vdc_100121318680.0x000001/full/full/0/default.jpg",
+          "@type" : "dctypes:Image",
+          "format" : "image/jpeg",
+          "service" : {
+            "@context" : "http://iiif.io/api/image/2/context.json",
+            "@id" : "https://iiif-test.github.io/Presentation2023/images/vdc_100121318680.0x000001",
+            "profile" : "http://iiif.io/api/image/2/level0.json"
+          },
+          "height" : 1619,
+          "width" : 800
+        },
+        "on" : "http://7956e54f-c0e3-4fac-9eb2-60a9d9b3e90b#xywh=0,0,800,1618"
+      }, {
+        "@context" : "http://iiif.io/api/presentation/2/context.json",
+        "@id" : "http://89375348-f146-4831-a0f3-8fed0dbafa20",
+        "@type" : "oa:Annotation",
+        "motivation" : "sc:painting",
+        "resource" : {
+          "@id" : "https://derivativo-1.library.columbia.edu/iiif/2/cul:76hdr7ssxh/full/full/0/default.jpg",
+          "@type" : "dctypes:Image",
+          "format" : "image/jpeg",
+          "service" : {
+            "@context" : "http://iiif.io/api/image/2/context.json",
+            "@id" : "https://derivativo-1.library.columbia.edu/iiif/2/cul:76hdr7ssxh",
+            "profile" : [ "http://iiif.io/api/image/2/level2.json", {
+              "formats" : [ "jpg", "png" ],
+              "qualities" : [ "default", "gray", "bitonal" ]
+            } ]
+          },
+          "height" : 6919,
+          "width" : 4272
+        },
+        "on" : "http://284218e4-8a58-4611-8711-2d017c8fe61b#xywh=800,0,800,1619"
+      } ],
+      "related" : ""
+    }, {
+      "@id" : "http://284218e4-8a58-4611-8711-2d017c8fe61b",
+      "@type" : "sc:Canvas",
+      "label" : "Empty canvas",
+      "height" : 6919,
+      "width" : 4272,
+      "images" : [ {
+        "@context" : "http://iiif.io/api/presentation/2/context.json",
+        "@id" : "http://89375348-f146-4831-a0f3-8fed0dbafa20",
+        "@type" : "oa:Annotation",
+        "motivation" : "sc:painting",
+        "resource" : {
+          "@id" : "https://derivativo-1.library.columbia.edu/iiif/2/cul:76hdr7ssxh/full/full/0/default.jpg",
+          "@type" : "dctypes:Image",
+          "format" : "image/jpeg",
+          "service" : {
+            "@context" : "http://iiif.io/api/image/2/context.json",
+            "@id" : "https://derivativo-1.library.columbia.edu/iiif/2/cul:76hdr7ssxh",
+            "profile" : [ "http://iiif.io/api/image/2/level2.json", {
+              "formats" : [ "jpg", "png" ],
+              "qualities" : [ "default", "gray", "bitonal" ]
+            } ]
+          },
+          "height" : 6919,
+          "width" : 4272
+        },
+        "on" : "http://284218e4-8a58-4611-8711-2d017c8fe61b"
+      } ],
+      "related" : ""
+    } ]
+  } ],
+  "structures" : [ ]
+}

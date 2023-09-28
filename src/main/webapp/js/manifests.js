@@ -36,6 +36,15 @@ function findValue(parentnode, key) {
     }
     return response;
 }
+
+function getId(manifest){
+    if ('@id' in manifest) {
+        return manifest['@id']; 
+    } else {
+        return manifest.id;
+    }
+}
+
 function showManifest(manifest, retrieved) {
     let manifestDiv = document.getElementById('manifests_div');
     let ul = null;
@@ -47,20 +56,37 @@ function showManifest(manifest, retrieved) {
     } else {
         ul = manifestDiv.children[0];
     }
-    let manifest_id = manifest["@id"];
+    let manifest_id = getId(manifest);
 
     var li = document.createElement("li");
     if (document.getElementById(manifest_id) != null) {
         li = document.getElementById(manifest_id);
         li.innerHTML = '';
     } else {
-        li.id = manifest["@id"];
+        li.id = manifest_id;
         li.className = "manifestSummary";
     }
 
     var thumbnail_img = "";
     var img = document.createElement("img");
-    if ('thumbnail' in manifest && manifest.thumbnail) {
+    img.className = "align-self-center mr-3 media-img";
+    // TODO replace with v3 thumb code
+    manifest_v3 = IIIFUpgrader.upgrade(manifest);
+    const helper = VaultHelpers.createThumbnailHelper();
+
+    helper.getBestThumbnailAtSize(manifest_v3, {
+              width: 200,
+              height: 100
+            })
+            .then((thumb) => {
+              console.log(thumb.best);
+              if (thumb.best) {
+                // Render it out.
+                img.src = thumb.best.id;
+                console.log(thumb);
+              }
+            });
+    /*if ('thumbnail' in manifest && manifest.thumbnail) {
         if (typeof manifest.thumbnail === 'string' || manifest.thumbnail instanceof String) {
             thumbnail_img = manifest.thumbnail;
             img.src = thumbnail_img;
@@ -89,10 +115,11 @@ function showManifest(manifest, retrieved) {
                     console.log('Failed to get image ' + imageId + ' due to ' + data);
                 }
             });
+        } else {
+            console.log('No manifest thumbnail and can not workout canvas thumbnail');
         }
-    }
+    }*/
     
-    img.className = "align-self-center mr-3 media-img";
 
     openImg = document.createElement("a");
     //openImg.href = "view.xhtml?collection=" + activeCollection["@id"] + "&manifest=" + manifest["@id"];</option>
@@ -139,11 +166,11 @@ function showManifest(manifest, retrieved) {
     mediaBody.appendChild(actionsBar);
 
     if (retrieved) {
-        actionsBar.appendChild(setupContentState(manifest['@id'], "View manifest JSON"));
+        actionsBar.appendChild(setupContentState(manifest_id, "View manifest JSON"));
     }
 
-    if (manifest["@id"].indexOf("github.io") != -1) {
-        let urlSplit = manifest["@id"].split("/");
+    if (manifest_id.indexOf("github.io") != -1) {
+        let urlSplit = manifest_id.split("/");
         let user = urlSplit[2].split(".")[0];
         let repo = urlSplit[3];
         let filename = urlSplit[urlSplit.length - 1];

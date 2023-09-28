@@ -243,10 +243,20 @@
                 <!-- keep the configuration out of the execution so that the bdd goal has access to it -->
                 <configuration>
                     <!-- configuration properties will go here -->
+                    <debug>true</debug>
                     <jsSrcDir>${basedir}/src/main/webapp/js</jsSrcDir>
                     <jsTestSrcDir>${basedir}/src/test/javascript</jsTestSrcDir>
                     <webDriverClassName>org.openqa.selenium.chrome.ChromeDriver</webDriverClassName>
                     <haltOnFailure>false</haltOnFailure>
+                    <preloadSources>
+                        <source>https://code.jquery.com/jquery-3.5.1.min.js</source>
+                        <source>https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js</source>
+                        <source>https://kit.fontawesome.com/0060d53ddc.js</source>
+                        <source>jasmine-jquery-2.1.1.js</source>
+                        <source>https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/a8d96591/@iiif/vault-helpers/dist/index.umd.js</source>
+                        <source>https://cdn.jsdelivr.net/npm/@iiif/parser@latest/dist/index.umd.js</source>
+                        <source>https://cdn.jsdelivr.net/npm/@iiif/parser@latest/dist/upgrader/index.umd.js</source>
+                    </preloadSources>
                 </configuration>
             </plugin>
       </plugins>
