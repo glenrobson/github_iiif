@@ -73,40 +73,6 @@ function showManifest(manifest, retrieved) {
                 img.src = thumb.best.id;
               }
             });
-    /*if ('thumbnail' in manifest && manifest.thumbnail) {
-        if (typeof manifest.thumbnail === 'string' || manifest.thumbnail instanceof String) {
-            thumbnail_img = manifest.thumbnail;
-            img.src = thumbnail_img;
-        } else if (typeof manifest.thumbnail === 'object' && !Array.isArray(manifest.thumbnail)){
-            thumbnail_img = manifest.thumbnail['@id'];
-            img.src = thumbnail_img;
-        }
-    } else {
-        // Get image service from first canvas
-        if (manifest.sequences && Array.isArray(manifest.sequences) && manifest.sequences[0].canvases && Array.isArray(manifest.sequences[0].canvases)
-                && manifest.sequences[0].canvases[0].images && Array.isArray(manifest.sequences[0].canvases[0].images)
-                 && manifest.sequences[0].canvases[0].images[0].resource && typeof manifest.sequences[0].canvases[0].images[0].resource === 'object'
-                    && manifest.sequences[0].canvases[0].images[0].resource.service && typeof manifest.sequences[0].canvases[0].images[0].resource.service === 'object'
-                        && manifest.sequences[0].canvases[0].images[0].resource.service["@id"] && typeof manifest.sequences[0].canvases[0].images[0].resource.service["@id"] === 'string') {
-            var imageId = manifest.sequences[0].canvases[0].images[0].resource.service["@id"];
-            thumbnail_img = imageId + '/full/,100/0/default.jpg';
-
-            $.ajax({
-                url: imageId + '/info.json',
-                type: 'GET',
-                success: function(data) {
-                    let URL = getIIIFImageURL(200,100, data);
-                    img.src = URL;
-                },
-                error: function(data) {
-                    console.log('Failed to get image ' + imageId + ' due to ' + data);
-                }
-            });
-        } else {
-            console.log('No manifest thumbnail and can not workout canvas thumbnail');
-        }
-    }*/
-    
 
     openImg = document.createElement("a");
     //openImg.href = "view.xhtml?collection=" + activeCollection["@id"] + "&manifest=" + manifest["@id"];</option>
