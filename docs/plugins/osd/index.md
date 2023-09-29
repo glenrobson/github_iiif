@@ -17,8 +17,6 @@ Use your mouse wheel to zoom in or use the + or - minus buttons
             prefixUrl:          "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/3.0.0/images/",
             preserveViewport:   true,
             visibilityRatio:    1,
-            minZoomLevel:       1,
-            defaultZoomLevel:   1,
             sequenceMode:       true,
             tileSources:   [infoJson]
         });
