@@ -4,6 +4,8 @@ name: mvn-test
 
 on: [push]
 
+#env:
+ # chrome-version: "119.0.6029.0"
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -12,16 +14,25 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
           java-version: '11'
           distribution: 'adopt'
+
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
+      - name: Install xvfb
+        run: sudo apt-get install xvfb
+
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify
+        run: xvfb-run --auto-servernum mvn --batch-mode --update-snapshots verify
+        env:
+            SE_BROWSER_PATH: "${{ github.workspace }}/chrome/chrome-linux64"
+

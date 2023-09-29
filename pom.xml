@@ -194,7 +194,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.9.1</version>
+                <version>1.14.0</version>
                 <configuration>
                     <workingDirectory>src/main/node</workingDirectory>
                 </configuration>
@@ -206,8 +206,8 @@
                         </goals>
                         <configuration>
                           <!-- See https://nodejs.org/en/download/ for latest node and npm (lts) versions -->
-                          <nodeVersion>v14.17.0</nodeVersion>
-                          <npmVersion>6.14.13</npmVersion>
+                          <nodeVersion>v18.18.0</nodeVersion>
+                          <npmVersion>9.8.1</npmVersion>
                         </configuration>
                       </execution>
                     <execution>
@@ -228,6 +228,36 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.searls</groupId>
+                <artifactId>jasmine-maven-plugin</artifactId>
+                <version>2.2</version>
+                <executions>
+                    <execution>
+                    <goals>
+                        <goal>test</goal>
+                    </goals>
+                    </execution>
+                </executions>
+                <!-- keep the configuration out of the execution so that the bdd goal has access to it -->
+                <configuration>
+                    <!-- configuration properties will go here -->
+                    <debug>true</debug>
+                    <jsSrcDir>${basedir}/src/main/webapp/js</jsSrcDir>
+                    <jsTestSrcDir>${basedir}/src/test/javascript</jsTestSrcDir>
+                    <webDriverClassName>org.openqa.selenium.chrome.ChromeDriver</webDriverClassName>
+                    <haltOnFailure>false</haltOnFailure>
+                    <preloadSources>
+                        <source>https://code.jquery.com/jquery-3.5.1.min.js</source>
+                        <source>https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js</source>
+                        <source>https://kit.fontawesome.com/0060d53ddc.js</source>
+                        <source>jasmine-jquery-2.1.1.js</source>
+                        <source>https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/a8d96591/@iiif/vault-helpers/dist/index.umd.js</source>
+                        <source>https://cdn.jsdelivr.net/npm/@iiif/parser@latest/dist/index.umd.js</source>
+                        <source>https://cdn.jsdelivr.net/npm/@iiif/parser@latest/dist/upgrader/index.umd.js</source>
+                    </preloadSources>
+                </configuration>
             </plugin>
       </plugins>
   </build>
