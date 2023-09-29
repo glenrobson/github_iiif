@@ -40,7 +40,7 @@ public class TestStorage extends TestUtils {
      */
     @Test
     public void testSaveImageManifest() throws IOException {
-        File tTestDir = super.newFolder("manifest");
+        File tTestDir = super.newFolder("target/manifest");
         MockRepo tRepoService = new MockRepo();
         Map<String, Object> tSession = new HashMap<String, Object>();
         tRepoService.setSession(HttpServletMocks.createSession(tSession));
@@ -62,7 +62,7 @@ public class TestStorage extends TestUtils {
      * Test not adding inProcess to saved Manifest
      */
     public void testInProcessStorage() throws IOException {
-        File tTestDir = super.newFolder("test_project");
+        File tTestDir = super.newFolder("target/test_project");
 
         MockRepo tRepoService = new MockRepo();
         Map<String, Object> tSession = new HashMap<String, Object>();
@@ -96,7 +96,7 @@ public class TestStorage extends TestUtils {
      */
     @Test
     public void testFix() throws IOException {
-        File tTestDir = super.newFolder("broken_project");
+        File tTestDir = super.newFolder("target/broken_project");
 
         MockRepo tRepoService = new MockRepo();
         Map<String, Object> tSession = new HashMap<String, Object>();
