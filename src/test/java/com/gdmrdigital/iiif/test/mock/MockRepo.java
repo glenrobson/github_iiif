@@ -5,10 +5,14 @@ import com.gdmrdigital.iiif.model.github.ExtendedContentService;
 
 import java.net.URL;
 
+import org.eclipse.egit.github.core.service.RepositoryService;
+
 import java.io.IOException;
 
 public class MockRepo extends Repo {
     protected ExtendedContentService _contentService = null;
+    protected RepositoryService _repoService = null;
+
     public MockRepo() {
     }
     
@@ -18,6 +22,14 @@ public class MockRepo extends Repo {
 
     public void setContentService(final ExtendedContentService pService) {
         _contentService = pService;
+    }
+
+    protected RepositoryService getRepositoryService() {
+        return _repoService;
+    }
+
+    public void setRepositoryService(final RepositoryService pService) {
+        _repoService = pService;
     }
 
     public boolean checkAvilable(final URL pInfoJson, final int pTries) throws IOException {

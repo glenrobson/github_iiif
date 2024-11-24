@@ -5,11 +5,12 @@ import org.eclipse.egit.github.core.IRepositoryIdProvider;
 import org.eclipse.egit.github.core.RepositoryContents;
 import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.client.RequestException;
 import static org.eclipse.egit.github.core.client.IGitHubConstants.SEGMENT_REPOS;
 
 import java.util.Map;
 import java.util.HashMap;
-
+import java.util.List;
 import java.io.IOException;
 
 public class ExtendedContentService extends ContentsService {
@@ -24,7 +25,6 @@ public class ExtendedContentService extends ContentsService {
     public ContentResponse setContents(final IRepositoryIdProvider pRepo, final RepositoryContents pContent) throws IOException {
         return this.setContents(pRepo, pContent, "Adding " + pContent.getName());
     }
-
 
     public ContentResponse setContents(final IRepositoryIdProvider pRepo, final RepositoryContents pContent, final String pMessage) throws IOException {
         // put /repos/{owner}/{repo}/contents/{path}
@@ -64,6 +64,17 @@ public class ExtendedContentService extends ContentsService {
 
         client.setHeaderAccept("application/vnd.github.v3+json");
         client.delete(uri.toString(), tParams);
+    }
+
+    public boolean exists(final RepositoryPath pPath) throws IOException {
+        try {
+            List<RepositoryContents> tContents = super.getContents(pPath.getRepo(),pPath.getPath());
+        } catch (RequestException tExcpt) {
+            if (tExcpt.getStatus() == 404) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public class ContentResponse {

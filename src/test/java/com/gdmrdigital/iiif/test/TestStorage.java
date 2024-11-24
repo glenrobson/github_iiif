@@ -2,6 +2,9 @@ package com.gdmrdigital.iiif.test;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -20,11 +23,14 @@ import java.util.HashMap;
 
 import java.net.URL;
 
+import javax.servlet.http.HttpSession;
+
 import com.github.jsonldjava.utils.JsonUtils;
 
 import com.gdmrdigital.iiif.model.iiif.Manifest;
 import com.gdmrdigital.iiif.test.mock.MockContentService;
 import com.gdmrdigital.iiif.test.mock.MockRepo;
+import com.gdmrdigital.iiif.test.mock.MockRepositoryService;
 import com.gdmrdigital.iiif.test.mock.HttpServletMocks;
 
 public class TestStorage extends TestUtils {
@@ -34,6 +40,10 @@ public class TestStorage extends TestUtils {
         super();
     }
 
+    @Before
+    public void setup() throws IOException {
+        super.setup();
+    }
     
     /**
      * 
@@ -115,6 +125,30 @@ public class TestStorage extends TestUtils {
         Manifest tSavedManifest = tRepoService.getImages(tRepoObj);
 
         assertEquals("Expected no canvases as inProcess should not be shown in the list.\n" + JsonUtils.toPrettyString(tSavedManifest.toJson()), 0, tSavedManifest.getCanvases().size());
+    }
+
+    /**
+     * Test fixing an in process manifest
+     */
+    @Test
+    public void testUpgrade() throws IOException {
+        File tTestDir = super.newFolder("target/oldProject");
+        new File(tTestDir, "user/project/images").mkdirs();
+        new File(tTestDir, "user/project/manifests").mkdirs();
+        new File(tTestDir, "user/project/collections").mkdirs();
+        new File(tTestDir, "user/project/annotations").mkdirs();
+
+        MockRepo tRepoService = new MockRepo();
+        Map<String, Object> tSession = new HashMap<String, Object>();
+        tRepoService.setSession(HttpServletMocks.createSession(tSession, super.createRepo("project", "user")));
+        tSession.remove("repo/project");
+        tRepoService.setContentService(new MockContentService(tTestDir));
+        tRepoService.setRepositoryService(new MockRepositoryService(tTestDir));
+
+        Repository tRepoObj = tRepoService.getRepo("project");
+
+        assertNotNull("Should have found repo", tRepoObj);
+        assertTrue("Github actions should have been added once the project noted it wasn't present", new File(tTestDir, "user/project/.github/workflows/convert_images.yml").exists());
     }
 
 

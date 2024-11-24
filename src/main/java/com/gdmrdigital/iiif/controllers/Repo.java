@@ -34,7 +34,9 @@ import com.google.gson.Gson;
 import javax.servlet.http.HttpSession;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.logging.FileHandler;
 import java.util.HashMap;
 import java.util.Base64;
 import java.util.Collections;
@@ -74,6 +76,10 @@ public class Repo extends Session {
 
     protected ExtendedContentService getContentService() {
         return new ExtendedContentService(this.getClient());
+    }
+
+    protected RepositoryService getRepositoryService() {
+        return new RepositoryService(this.getClient());
     }
 
     protected User getUser() {
@@ -131,7 +137,7 @@ public class Repo extends Session {
     }
 
     public List<SearchRepository> getRepos() throws IOException {
-        RepositoryService tService = new RepositoryService(this.getClient());
+        RepositoryService tService = this.getRepositoryService();
         
         Map<String, String> tParams = new HashMap<String,String>();
         tParams.put("topic", "iiif-training-workbench");
@@ -158,15 +164,33 @@ public class Repo extends Session {
         String tCacheId = "repo/" + pId;
         Repository tRepo = null;
         if (super.getSession().getAttribute(tCacheId) == null) {
-            RepositoryService tService = new RepositoryService(this.getClient());
+            RepositoryService tService = this.getRepositoryService();
 
             tRepo = tService.getRepository(this.getUser().getLogin(), pId);
+
+            _logger.debug("Checking repo " + pId+ " has latest code");
+            this.checkHasLatestCode(tRepo);
             super.getSession().setAttribute(tCacheId, tRepo);
         } else {
-            System.out.println("Cache");
+            _logger.debug("Got " + pId + " from Cache using key: " +tCacheId);
+            _logger.debug(super.getSession().getAttribute(tCacheId).toString());
             tRepo = (Repository)super.getSession().getAttribute(tCacheId);
         }
         return tRepo;
+    }
+
+    public void checkHasLatestCode(final Repository pRepo) throws IOException {
+        RepositoryPath tPath = new RepositoryPath(pRepo, ".github/workflows/convert_images.yml");
+
+        ExtendedContentService tService = this.getContentService();
+        if (!tService.exists(tPath)) {
+            String[] tUpdates = {
+                ".github/workflows/convert_images.yml",
+                "images/uploads/2/README.md",
+                "images/uploads/3/README.md"
+            };
+            this.uploadTemplateFiles(pRepo, tUpdates);
+        }
     }
 
     public Manifest getImages(final Repository pRepo) throws IOException {
@@ -414,6 +438,27 @@ public class Repo extends Session {
         tService.pagesEnforceHttps(tLocalCopy, tLocalCopy.getDefaultBranch(), "/");
         return tLocalCopy;
     }
+
+    public List<ContentResponse> uploadTemplateFiles(final IRepositoryIdProvider pRepo, final String[] pFiles) throws IOException {
+        List<ContentResponse> tAdditions = new ArrayList<ContentResponse>();
+        File tTemplateDir = Config.getConfig().getRepoTemplate();
+        ExtendedContentService tService = this.getContentService();
+
+        for (int i = 0; i < pFiles.length; i++) {
+            File tFile = new File(tTemplateDir, pFiles[i]);
+
+            System.out.println("Uploading " + tFile.getPath() + " to " + new File(pFiles[i]).getParentFile().getPath() + "/" + tFile.getName());
+            RepositoryContents tRepFile = new RepositoryContents();
+            tRepFile.setName(tFile.getName());
+            tRepFile.setPath(new File(pFiles[i]).getParentFile().getPath());
+            tRepFile.setEncoding("base64");
+            tRepFile.setType(RepositoryContents.TYPE_FILE);
+            tRepFile.setContent(encode(tFile));
+
+            tAdditions.add(tService.setContents(pRepo, tRepFile));
+        }
+        return tAdditions;        
+    }    
 
     public List<RepositoryContents> uploadDirectory(final IRepositoryIdProvider pRepo, final String pPath, final File pDataDir) throws IOException {
         ExtendedContentService tService = this.getContentService();
