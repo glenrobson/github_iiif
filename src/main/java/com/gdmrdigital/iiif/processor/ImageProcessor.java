@@ -4,100 +4,105 @@ import java.util.UUID;
 import java.util.Map;
 import java.util.HashMap;
 import java.net.URL;
-import java.io.File;
 import java.io.IOException;
 
-import uk.co.gdmrdigital.iiif.image.Tiler;
-import uk.co.gdmrdigital.iiif.image.IIIFImage;
-import uk.co.gdmrdigital.iiif.image.InfoJson;
-import uk.co.gdmrdigital.iiif.image.ImageInfo;
-
 import com.gdmrdigital.iiif.controllers.Repo;
+import com.gdmrdigital.iiif.model.github.workflows.WorkflowStatus;
 import com.gdmrdigital.iiif.model.iiif.Manifest;
 
 import org.eclipse.egit.github.core.Repository;
 
-public class ImageProcessor extends Thread {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.Date;
+
+public class ImageProcessor {
+    private static final Logger _logger = LoggerFactory.getLogger(ImageProcessor.class);
     public enum Status {
         INIT,
         TILE_GENERATION,
-        GIT_UPLOAD,
         FAILED,
-        UPDATING_IMG_LIST,
         PAGES_UPDATING,
         FINISHED
     }
+
+    public static final long INIT_GRACE = 60000 * 1; // 1 minute
     protected String _id = "";
     protected Status _status = Status.INIT;
-    protected String _fileId = "";
-    protected String _iiifVersion = "";
-    protected String _baseURI = null;
-    protected File _inputImage = null;
-    protected File _tileDestination = null;
+    protected URL _infoJson = null;
     protected Repo _repoControl = null;
     protected Repository _repo = null;
-    protected String _githubPath = "";
+    protected Date _startTime = null;
     
     public ImageProcessor() {
         _id = UUID.randomUUID().toString();
         _instances.put(_id, this);
+        _startTime = new Date();
     }
 
     protected static Map<String, ImageProcessor> _instances = new HashMap<String, ImageProcessor>();
     public static Status getStatus(final String pId) {
-        if (_instances.get(pId) != null) {
-            return _instances.get(pId).getStatus();
+        if (_instances.get(pId) != null ) {
+            ImageProcessor inst = _instances.get(pId);
+            if (inst.isGeneratingTiles()) {
+                _logger.debug("Sending TILE_GENERATION for " + pId + " " + inst.getInfoURL());
+                return Status.TILE_GENERATION;
+            } else if (inst.isUpdatingWebsite()) {
+                _logger.debug("Sending PAGES_UPDATING for " + pId + " " + inst.getInfoURL());
+                return Status.PAGES_UPDATING;
+            } else if (inst.isImageUploaded()) {
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException tExcpt) {}
+                // Give the pages update one more chance
+                if (inst.isUpdatingWebsite()) {
+                    _logger.debug("Sending PAGES_UPDATING for " + pId + " " + inst.getInfoURL());
+                    return Status.PAGES_UPDATING; 
+                }
+                _logger.debug("Sending FINISHED for " + pId + " " + inst.getInfoURL());
+                _instances.remove(pId);
+                return Status.FINISHED;
+            } else {
+                if (new Date().getTime() - inst.getStartTime().getTime() > INIT_GRACE) { 
+                    _logger.debug("Sending FAILED for " + pId + " " + inst.getInfoURL());
+                    return Status.FAILED;
+                } else {    
+                    _logger.debug("Sending INIT for " + pId + " " + inst.getInfoURL());
+                    return Status.INIT;
+                }
+            }
         } else {
             return null; // Instance not found
         }
     }
 
-    public void run() {
-        try {
-            setStatus(Status.TILE_GENERATION);
-
-            IIIFImage tImage = new IIIFImage(_inputImage);
-            tImage.setId(_fileId);
-            ImageInfo tImageInfo = new ImageInfo(tImage);
-            Tiler.createImage(tImageInfo, _tileDestination, _baseURI, _iiifVersion);
-            InfoJson tInfo =  new InfoJson(tImageInfo, _baseURI, _iiifVersion);
-
-            setStatus(Status.GIT_UPLOAD);
-            _repoControl.uploadDirectory(_repo, _githubPath, new File(_tileDestination, _fileId));
-
-            setStatus(Status.UPDATING_IMG_LIST);
-
-            Manifest tImageManifest = _repoControl.getImages(_repo);
-            URL tInfoJson = new URL(tInfo.getId() + "/info.json");
-            if (!tImageManifest.hasProcess(_id)) {
-                tImageManifest.addInProcess(_id, tInfoJson, _fileId);
-            }
-            tImageManifest.addCanvas(_id, tInfo);
-
-            _repoControl.saveImageManifest(_repo, tImageManifest);
-
-            setStatus(Status.PAGES_UPDATING);
-
-            int tTries = 10;
-            boolean tSuccess = _repoControl.checkAvilable(tInfoJson, tTries);
-            if (!tSuccess) {
-                setStatus(Status.FAILED);
-                System.out.println("Failed to get " + tInfoJson.toString() + " after " + tTries);
-            } else {
-                setStatus(Status.FINISHED);
-                _instances.remove(_id);
-            }
-        } catch (IOException tExcpt) {
-            setStatus(Status.FAILED);
-            System.err.println("Failed to create and upload tiles due to: " + tExcpt);
-            tExcpt.printStackTrace();
-        } catch (Exception tExcpt) {
-            setStatus(Status.FAILED);
-            System.err.println("Failed to create and upload tiles due to: " + tExcpt);
-            tExcpt.printStackTrace();
-        }
+    public boolean isGeneratingTiles() {
+        WorkflowStatus tStatus = _repoControl.getActiveImageWorkflows(_repo);
+        return tStatus.hasActive();
     }
-    
+
+    public boolean isUpdatingWebsite() {
+        WorkflowStatus tStatus = _repoControl.getActivePagesWorkflows(_repo);
+        return tStatus.hasActive();
+    }
+
+    public boolean isImageUploaded() {
+        try {
+            Manifest tManifest = _repoControl.getImagesFromRepo(_repo);
+            System.out.println("Looking for " + _infoJson.toString());
+            System.out.println(tManifest.getCanvases());
+            return tManifest.hasImage(_infoJson.toString());
+        } catch (IOException tExcpt) {
+            System.err.println("Failed to find image in manifest.json due to:");
+            tExcpt.printStackTrace();
+            return false;
+        }    
+    }
+
+    public Date getStartTime() {
+        return _startTime;
+    }
+
     /**
      * Get id.
      *
@@ -125,99 +130,14 @@ public class ImageProcessor extends Thread {
          _status = pStatus;
     }
     
-    /**
-     * Get fileId.
-     *
-     * @return fileId as String.
-     */
-    public String getFileId() {
-        return _fileId;
+    public void setInfoURL(final URL pInfoJson) {
+        _infoJson = pInfoJson;
+    } 
+
+    public URL getInfoURL() {
+        return _infoJson;
     }
-    
-    /**
-     * Set fileId.
-     *
-     * @param fileId the value to set.
-     */
-    public void setFileId(final String pFileId) {
-         _fileId = pFileId;
-    }
-    
-    /**
-     * Get iiifVersion.
-     *
-     * @return iiifVersion as String.
-     */
-    public String getIiifVersion() {
-        return _iiifVersion;
-    }
-    
-    /**
-     * Set iiifVersion.
-     *
-     * @param iiifVersion the value to set.
-     */
-    public void setIiifVersion(final String pIiifVersion) {
-         _iiifVersion = pIiifVersion;
-    }
-    
-    /**
-     * Get baseURI.
-     *
-     * @return baseURI as URI.
-     */
-    public String getBaseURI() {
-        return _baseURI;
-    }
-    
-    /**
-     * Set baseURI.
-     *
-     * @param baseURI the value to set.
-     */
-    public void setBaseURI(final String pBaseURI) {
-         _baseURI = pBaseURI;
-         if (!_baseURI.endsWith("/")) {
-            _baseURI += "/";
-         }
-    }
-    
-    /**
-     * Get inputImage.
-     *
-     * @return inputImage as File.
-     */
-    public File getInputImage() {
-        return _inputImage;
-    }
-    
-    /**
-     * Set inputImage.
-     *
-     * @param inputImage the value to set.
-     */
-    public void setInputImage(final File pInputImage) {
-         _inputImage = pInputImage;
-    }
-    
-    /**
-     * Get tileDestination.
-     *
-     * @return tileDestination as File.
-     */
-    public File getTileDestination() {
-        return _tileDestination;
-    }
-    
-    /**
-     * Set tileDestination.
-     *
-     * @param tileDestination the value to set.
-     */
-    public void setTileDestination(final File pTileDestination) {
-         _tileDestination = pTileDestination;
-    }
-    
+
     /**
      * Get repoControl.
      *
@@ -252,23 +172,5 @@ public class ImageProcessor extends Thread {
      */
     public void setRepo(final Repository pRepo) {
          _repo = pRepo;
-    }
-    
-    /**
-     * Get githubPath.
-     *
-     * @return githubPath as String.
-     */
-    public String getGithubPath() {
-        return _githubPath;
-    }
-    
-    /**
-     * Set githubPath.
-     *
-     * @param githubPath the value to set.
-     */
-    public void setGithubPath(final String pGithubPath) {
-         _githubPath = pGithubPath;
     }
 }

@@ -3,6 +3,8 @@ package com.gdmrdigital.iiif.controllers;
 import com.gdmrdigital.iiif.model.github.ExtendedRepositoryServices;
 import com.gdmrdigital.iiif.model.github.ExtendedContentService;
 import com.gdmrdigital.iiif.model.github.ExtendedContentService.ContentResponse;
+import com.gdmrdigital.iiif.model.github.workflows.WorkflowRun;
+import com.gdmrdigital.iiif.model.github.workflows.WorkflowStatus;
 import com.gdmrdigital.iiif.model.github.RepositoryPath;
 import com.gdmrdigital.iiif.model.iiif.Manifest;
 import com.gdmrdigital.iiif.model.iiif.Layer;
@@ -70,6 +72,7 @@ public class Repo extends Session {
 
         GitHubClient tClient = new GitHubClient();
         tClient.setOAuth2Token(tService.getToken().getAccessToken());
+        System.out.println("Token: " + tService.getToken().getAccessToken());
 
         return tClient;
     }
@@ -78,8 +81,8 @@ public class Repo extends Session {
         return new ExtendedContentService(this.getClient());
     }
 
-    protected RepositoryService getRepositoryService() {
-        return new RepositoryService(this.getClient());
+    protected ExtendedRepositoryServices getRepositoryService() {
+        return new ExtendedRepositoryServices(this.getClient());
     }
 
     protected User getUser() {
@@ -193,6 +196,39 @@ public class Repo extends Session {
         }
     }
 
+
+    public Manifest getImagesFromRepo(final Repository pRepo) throws IOException {
+        RepositoryPath tPath = new RepositoryPath(pRepo, "images/manifest.json");
+        String tManifestPath = pRepo.generateId() + tPath.getPath();
+        Manifest tImagesManifest = new Manifest();
+        // Get from repo
+        try {
+            List<RepositoryContents> tManifestList = this.getFiles(tPath);
+            if (tManifestList.get(0).getContent() == null) {
+                throw new IOException("Empty manifest found");
+            } else {
+                tImagesManifest.loadJson(this.contents2Json(tManifestList.get(0)));
+                System.out.println("Sha: " + tManifestList.get(0).getSha());
+                tImagesManifest.setSha(tManifestList.get(0).getSha());
+                if (tImagesManifest.removeFinishedInProcess()) {
+                    // in Process canvases were removed so save new copy. 
+                    saveImageManifest(pRepo, tImagesManifest);
+                }
+            }
+            _logger.debug("Getting manifest from GitHub");
+        } catch (IOException tExcpt) {    
+            if (tExcpt.getMessage().equals("Empty manifest found") || (tExcpt instanceof RequestException && tExcpt.getMessage().equals("Not Found (404)")) ) {
+                _logger.debug("Failed to retrieve " + pRepo.generateId() + "/images/manifest.json so creating new. Failed due to: " + tExcpt); 
+                // create new manifest
+                tImagesManifest = Manifest.createEmpty(tPath.getWeb(), "All images loaded in " + pRepo.generateId() + " project");
+            } else {
+                throw tExcpt;
+            }
+        }
+        super.getSession().setAttribute(tManifestPath, tImagesManifest);
+        return tImagesManifest;
+    }
+
     public Manifest getImages(final Repository pRepo) throws IOException {
         RepositoryPath tPath = new RepositoryPath(pRepo, "images/manifest.json");
         String tManifestPath = pRepo.generateId() + tPath.getPath();
@@ -201,32 +237,7 @@ public class Repo extends Session {
             tImagesManifest = (Manifest)super.getSession().getAttribute(tManifestPath);
             _logger.debug("Getting manifest from session");
         } else {
-            // Get from repo
-            try {
-                List<RepositoryContents> tManifestList = this.getFiles(tPath);
-                if (tManifestList.get(0).getContent() == null) {
-                    throw new IOException("Empty manifest found");
-                } else {
-                    tImagesManifest.loadJson(this.contents2Json(tManifestList.get(0)));
-                    System.out.println("Sha: " + tManifestList.get(0).getSha());
-                    tImagesManifest.setSha(tManifestList.get(0).getSha());
-                    if (tImagesManifest.removeFinishedInProcess()) {
-                        // in Process canvases were removed so save new copy. 
-                        saveImageManifest(pRepo, tImagesManifest);
-                    }
-                }
-                _logger.debug("Getting manifest from GitHub");
-            } catch (IOException tExcpt) {    
-                if (tExcpt.getMessage().equals("Empty manifest found") || (tExcpt instanceof RequestException && tExcpt.getMessage().equals("Not Found (404)")) ) {
-                    _logger.debug("Failed to retrieve " + pRepo.generateId() + "/images/manifest.json so creating new. Failed due to: " + tExcpt); 
-                    // create new manifest
-                    tImagesManifest = Manifest.createEmpty(tPath.getWeb(), "All images loaded in " + pRepo.generateId() + " project");
-                } else {
-                    throw tExcpt;
-                }
-            }
-
-            super.getSession().setAttribute(tManifestPath, tImagesManifest);
+            tImagesManifest = this.getImagesFromRepo(pRepo);
         }
 
         _logger.debug("Returning manifest {}", JsonUtils.toPrettyString(tImagesManifest.toJson()));
@@ -369,6 +380,21 @@ public class Repo extends Session {
         return tService.setContents(pPath.getRepo(), tFile);
     }
 
+    // Sha required if its an update
+    public ContentResponse uploadEncodedFile(final RepositoryPath pPath, final String pContents) throws IOException {
+        RepositoryContents tFile = new RepositoryContents();
+        tFile.setName(pPath.getName());
+        if (!pPath.equals("/")) {
+            tFile.setPath(pPath.getParentPath());
+        }
+        tFile.setEncoding("base64");
+        tFile.setType(RepositoryContents.TYPE_FILE);
+        tFile.setContent(pContents);
+
+        ExtendedContentService tService = this.getContentService();
+        return tService.setContents(pPath.getRepo(), tFile);
+    }
+
     public void replaceFile(final RepositoryPath pRepoPath, String pContent) throws IOException {
         List<RepositoryContents> tGitHubFile = this.getFiles(pRepoPath);
 
@@ -437,6 +463,32 @@ public class Repo extends Session {
         tService.createPages(tLocalCopy, tLocalCopy.getDefaultBranch(), "/");
         tService.pagesEnforceHttps(tLocalCopy, tLocalCopy.getDefaultBranch(), "/");
         return tLocalCopy;
+    }
+
+    public WorkflowStatus getActiveImageWorkflows(final IRepositoryIdProvider pRepo) {
+        ExtendedRepositoryServices tService = this.getRepositoryService();
+
+        return tService.getWorkflowRuns(pRepo, "convert_images.yml");
+    }
+
+    public WorkflowStatus getActivePagesWorkflows(final IRepositoryIdProvider pRepo) {
+        ExtendedRepositoryServices tService = this.getRepositoryService();
+
+        WorkflowStatus tStatus = tService.getWorkflowRuns(pRepo);
+        if (tStatus.getWorkflowRuns() != null) {
+            List<WorkflowRun> tPages = new ArrayList<WorkflowRun>();
+            System.out.println("Found " + tStatus.getWorkflowRuns().size() + " workflows");
+            for (WorkflowRun tRun : tStatus.getWorkflowRuns()) {
+                System.out.println("Checking " + tRun.getName());
+                if (tRun.getName().equals("pages build and deployment")) {
+                    tPages.add(tRun);
+                }
+            }
+            tStatus.setWorkflowRuns(tPages);
+        } else {
+            System.out.println("No pages workflow running");
+        }
+        return tStatus;
     }
 
     public List<ContentResponse> uploadTemplateFiles(final IRepositoryIdProvider pRepo, final String[] pFiles) throws IOException {
