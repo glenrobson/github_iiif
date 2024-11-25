@@ -72,7 +72,6 @@ public class Repo extends Session {
 
         GitHubClient tClient = new GitHubClient();
         tClient.setOAuth2Token(tService.getToken().getAccessToken());
-        System.out.println("Token: " + tService.getToken().getAccessToken());
 
         return tClient;
     }
