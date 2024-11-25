@@ -64,7 +64,7 @@ function monitorImage(details) {
             }
 
             if (!finished) {
-                setTimeout(monitorImage, 4000, details);
+                setTimeout(monitorImage, 60000, details);
             } else {
                console.log("Looks like image " + details.proccess_id + " has finished");
                showImageJson(details.project);
@@ -129,7 +129,7 @@ function addImage(item, project) {
             status_div: statusDiv.id,
             project: project
         }
-        setTimeout(monitorImage, 4000, details);
+        setTimeout(monitorImage, 20000, details);
         /* <div class="spinner-border" role="status">
              <span class="sr-only">Loading...</span>
            </div> */
@@ -210,7 +210,7 @@ function updateFailedImage(event) {
     }
     setTimeout(function () {
         event.srcElement.src = url + "?" + performance.now();
-    }, 500);
+    }, 2000);
 }
 
 function showImages(project, data) {

@@ -101,6 +101,17 @@ public class Manifest extends GitHubObj {
         return deleted;
     }
 
+    public boolean hasImage(final String pImageId) {
+        boolean tFound = false;
+        for (Canvas tCanvas : _canvases) {
+            if (tCanvas.getImageId().equals(pImageId)) {
+                tFound = true;
+                break;
+            }
+        }
+        return tFound;
+    }
+
     // addCanvas(final String pProccessId, final InfoJson pImageInfo)
     public void addCanvas(final String pProccessId, final InfoJson pImageInfo) {
         for (Canvas tCanvas : _canvases) {

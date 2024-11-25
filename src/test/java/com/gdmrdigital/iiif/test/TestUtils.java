@@ -66,7 +66,7 @@ public class TestUtils {
         @Override
         protected void failed(Throwable e, org.junit.runner.Description description) {
             if (_retainFailedData && _persistentDir != null) {
-                System.out.println("Test " + description + " failed. Test data is aviliable in: " + _persistentDir.getPath());
+                System.out.println("Test " + description + " failed. Test data is available in: " + _persistentDir.getPath());
             } else {
                 this.deleteData();
             }

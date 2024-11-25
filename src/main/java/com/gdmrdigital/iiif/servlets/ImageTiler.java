@@ -15,6 +15,8 @@ import java.io.FilenameFilter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import java.util.Base64;
+
 import java.net.URL;
 
 import java.util.Map;
@@ -23,6 +25,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 import com.gdmrdigital.iiif.processor.ImageProcessor;
+import com.gdmrdigital.iiif.controllers.UserService;
 import com.gdmrdigital.iiif.controllers.Repo;
 import com.gdmrdigital.iiif.model.github.RepositoryPath;
 import com.gdmrdigital.iiif.model.iiif.Manifest;
@@ -77,55 +80,65 @@ public class ImageTiler extends JSONServlet {
     protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
 
         String tId = req.getParameter("id");
-        String tVersion = InfoJson.VERSION3;
+        String tVersion = "3";
         if (req.getParameter("version").equals("2.x")) {
-            tVersion =  InfoJson.VERSION211;
+            tVersion = "2";
         }
         String tRepoName = req.getParameter("repo");
 
         Part tFilePart = req.getPart("file");
         long fileSize = tFilePart.getSize();
-        String fileName = tFilePart.getSubmittedFileName();
+        String filename = tFilePart.getSubmittedFileName();
         
-        File tImageWorkDir = new File(_tmpDir, UUID.randomUUID().toString());
-        Files.createDirectories(tImageWorkDir.toPath());
-
-        // ... // Register file information (status: new) for current user in DB.
-        log.info("File has been uploaded: " + tImageWorkDir + " with filename " + fileName);
-
-        File tImageFile = new File(tImageWorkDir, fileName);
-        Files.copy(tFilePart.getInputStream(), tImageFile.toPath());
-
-        File tTiles = new File(tImageWorkDir, "tiles"); 
-        
-        ImageProcessor tProcessor = new ImageProcessor();
-        tProcessor.setFileId(tId);
-        tProcessor.setIiifVersion(tVersion);
-
-        tProcessor.setInputImage(tImageFile);
-        tProcessor.setTileDestination(tTiles);
-
         Repo tRepo = this.getRepoService();
         tRepo.setSession(req.getSession());
+        Repository tRepoObj = tRepo.getRepo(tRepoName);
+        RepositoryPath tPath = new RepositoryPath(tRepoObj, "/images/uploads/" + tVersion + "/" + filename);
 
-        RepositoryPath tWeb = tRepo.processPath(tRepoName + "/images");
-        tProcessor.setBaseURI(tWeb.getWeb());
+        byte imageData[] = new byte[(int)fileSize];
+        tFilePart.getInputStream().read(imageData);
+        String base64Image = Base64.getEncoder().encodeToString(imageData);
+        System.out.println("Base64");
+        System.out.println(base64Image);
+        System.out.println(tPath);
+        tRepo.uploadEncodedFile(tPath, base64Image);
+
+        UserService tService = new UserService(req.getSession());
+
+        ImageProcessor tProcessor = new ImageProcessor();
+        StringBuffer tBuffer = new StringBuffer("https://");
+        tBuffer.append(tService.getUser().getLogin());
+        tBuffer.append(".github.io/");
+        tBuffer.append(tRepoName);
+        tBuffer.append("/images/");
+
+        // filename without extension
+        String name = "";
+        if (filename == null || filename.lastIndexOf(".") == -1) {
+            name = filename;
+        } else {
+            name = filename.substring(0, filename.lastIndexOf("."));
+        }
+
+        tBuffer.append(name);
+
+        URL tInfoJson = new URL(tBuffer.toString());
+        System.out.println("Created info.json: " + tInfoJson);
+
+        tProcessor.setInfoURL(tInfoJson);
         tProcessor.setRepoControl(tRepo);
 
-        Repository tRepoObj = tRepo.getRepo(tRepoName);
         tProcessor.setRepo(tRepoObj);
-        tProcessor.setGithubPath("/images/" + tId);
 
-        tProcessor.start();
         // ... // Update file information (status: new => stored) in DB.
-        log.info("ID: " + tId + ", version: " + tVersion + " File uploaded to: " + tImageFile.getPath());
+        //log.info("ID: " + tId + ", version: " + tVersion + " File uploaded to: " + tImageFile.getPath());
         Map<String, Object> tResponse = new HashMap<String,Object>();
         tResponse.put("process_id", tProcessor.getIdentifier());
         tResponse.put("status", "UPLOADED");
 
         Manifest tImages = tRepo.getImages(tRepoObj);
         // addInProcess(final String pProccessId, final URL pInfoJson, final String pLabel)
-        tImages.addInProcess(tProcessor.getIdentifier(), new URL(tWeb.getWeb() + "/" +  tId + "/info.json"), tId);
+        tImages.addInProcess(tProcessor.getIdentifier(), tInfoJson, tId);
         sendJson(resp, 200, tImages.toJson());
     }
 }

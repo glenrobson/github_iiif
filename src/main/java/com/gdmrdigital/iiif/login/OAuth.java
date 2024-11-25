@@ -32,7 +32,7 @@ public class OAuth extends HttpServlet {
 
         final String secretState = "github_" + new Random().nextInt(999_999);
         Map<String, String> additionalParams = new HashMap<String,String>();
-        additionalParams.put("scope", "public_repo");
+        additionalParams.put("scope", "public_repo, workflow");
         final String authorizationUrl = service.createAuthorizationUrlBuilder()
                 .state(secretState)
                 .additionalParams(additionalParams)

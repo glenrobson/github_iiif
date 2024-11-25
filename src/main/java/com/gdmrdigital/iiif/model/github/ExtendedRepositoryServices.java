@@ -11,6 +11,7 @@ import static org.eclipse.egit.github.core.client.IGitHubConstants.SEGMENT_REPOS
 
 import com.gdmrdigital.iiif.model.github.pages.SiteStatus;
 import com.gdmrdigital.iiif.model.github.pages.Source;
+import com.gdmrdigital.iiif.model.github.workflows.WorkflowStatus;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -111,6 +112,93 @@ public class ExtendedRepositoryServices extends RepositoryService {
             // If this method is called straight after creating the repo
             // then the Certificate hasn't been created and an exception is thrown...
             System.err.println("Failed to set enforceHTTPs on " + pRepo.generateId() + " due to: " + tExcpt.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Get all active workflows for repository
+     * @param pRepo
+     * @return
+     */
+    public WorkflowStatus getWorkflowRuns(final IRepositoryIdProvider pRepo) {
+        // curl -L \
+        //      -H "Accept: application/vnd.github+json" \
+        //      -H "Authorization: Bearer <YOUR-TOKEN>" \
+        //      -H "X-GitHub-Api-Version: 2022-11-28" \
+        //https://api.github.com/repos/USER/REPO/actions/runs
+
+        
+        StringBuilder uri = new StringBuilder(SEGMENT_REPOS);
+		uri.append("/").append(pRepo.generateId());
+		uri.append("/actions/runs");
+        System.out.println("Creating actions URI: " + uri.toString());
+
+        /*
+         * Can distinguish by run status:
+         * Can be one of: completed, action_required, cancelled, failure, neutral, 
+         * skipped, stale, success, timed_out, in_progress, queued, requested, waiting, pending */
+        Map<String, String> tParams = new HashMap<String,String>();
+        tParams.put("status", "in_progress");
+        //tParams.put("https_enforced", true);
+        //System.out.println(tParams);
+
+        client.setHeaderAccept("application/vnd.github+json");
+        try {
+            GitHubRequest tRequest = new GitHubRequest();
+            tRequest.setUri(uri);
+            tRequest.setResponseContentType("application/vnd.github+json");
+            tRequest.setParams(tParams);
+            tRequest.setType(WorkflowStatus.class);
+            return (WorkflowStatus)client.get(tRequest).getBody();
+        } catch (RequestException tExcpt) {
+            // If this method is called straight after creating the repo
+            // then the Certificate hasn't been created and an exception is thrown...
+            System.err.println("Failed to set get Workflow run for " + pRepo.generateId() + " due to: " + tExcpt.getMessage());
+        } catch (IOException tExcpt) {
+            System.err.println("Failed to set get Workflow run for " + pRepo.generateId() + " due to: " + tExcpt.getMessage());
+        }
+        return null;
+    }
+
+    public WorkflowStatus getWorkflowRuns(final IRepositoryIdProvider pRepo, final String pWorkflow) {
+        // curl -L \
+        //      -H "Accept: application/vnd.github+json" \
+        //      -H "Authorization: Bearer <YOUR-TOKEN>" \
+        //      -H "X-GitHub-Api-Version: 2022-11-28" \
+        //https://api.github.com/repos/OWNER/REPO/actions/workflows/WORKFLOW_ID/runs
+
+        
+        StringBuilder uri = new StringBuilder(SEGMENT_REPOS);
+		uri.append("/").append(pRepo.generateId());
+		uri.append("/actions/workflows/");
+		uri.append(pWorkflow);
+        uri.append("/runs");
+        System.out.println("Creating actions URI: " + uri.toString());
+
+        /*
+         * Can distinguish by run status:
+         * Can be one of: completed, action_required, cancelled, failure, neutral, 
+         * skipped, stale, success, timed_out, in_progress, queued, requested, waiting, pending */
+        Map<String, String> tParams = new HashMap<String,String>();
+        tParams.put("status", "in_progress");
+        //tParams.put("https_enforced", true);
+        //System.out.println(tParams);
+
+        client.setHeaderAccept("application/vnd.github+json");
+        try {
+            GitHubRequest tRequest = new GitHubRequest();
+            tRequest.setUri(uri);
+            tRequest.setResponseContentType("application/vnd.github+json");
+            tRequest.setParams(tParams);
+            tRequest.setType(WorkflowStatus.class);
+            return (WorkflowStatus)client.get(tRequest).getBody();
+        } catch (RequestException tExcpt) {
+            // If this method is called straight after creating the repo
+            // then the Certificate hasn't been created and an exception is thrown...
+            System.err.println("Failed to set get Workflow run for " + pRepo.generateId() + " " + pWorkflow + " due to: " + tExcpt.getMessage());
+        } catch (IOException tExcpt) {
+            System.err.println("Failed to set get Workflow run for " + pRepo.generateId() + " " + pWorkflow + " due to: " + tExcpt.getMessage());
         }
         return null;
     }
