@@ -238,12 +238,6 @@
                 <groupId>com.github.searls</groupId>
                 <artifactId>jasmine-maven-plugin</artifactId>
                 <version>2.2</version>
-                <configuration>
-                    <!-- Use your runner template instead of the default -->
-                    <specRunnerTemplate>src/test/resources/_SpecRunner.html</specRunnerTemplate>
-                    <!-- Optional: don’t auto-include files if you’re wiring them yourself -->
-                    <!-- <manualSpecRunner>true</manualSpecRunner> -->
-                </configuration>
                 <executions>
                     <execution>
                     <goals>
@@ -255,6 +249,7 @@
                 <configuration>
                     <!-- configuration properties will go here -->
                     <debug>true</debug>
+                    <specRunnerTemplate>src/test/resources/_SpecRunner.html</specRunnerTemplate>
                     <jsSrcDir>${basedir}/src/main/webapp/js</jsSrcDir>
                     <jsTestSrcDir>${basedir}/src/test/javascript</jsTestSrcDir>
                     <webDriverClassName>org.openqa.selenium.chrome.ChromeDriver</webDriverClassName>
