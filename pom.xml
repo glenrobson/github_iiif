@@ -238,6 +238,12 @@
                 <groupId>com.github.searls</groupId>
                 <artifactId>jasmine-maven-plugin</artifactId>
                 <version>2.2</version>
+                <configuration>
+                    <!-- Use your runner template instead of the default -->
+                    <specRunnerTemplate>src/test/resources/_SpecRunner.html</specRunnerTemplate>
+                    <!-- Optional: don’t auto-include files if you’re wiring them yourself -->
+                    <!-- <manualSpecRunner>true</manualSpecRunner> -->
+                </configuration>
                 <executions>
                     <execution>
                     <goals>

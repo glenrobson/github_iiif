@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Jasmine</title>
+    <!-- jasmine assets are injected by the plugin variables -->
+    <link rel="stylesheet" href="${jasmineCss}">
+    <script src="${jasmineJs}"></script>
+    <script src="${jasmineHtmlJs}"></script>
+    <script src="${bootJs}"></script>
+  </head>
+  <body>
+    <!-- Load your app & specs as ES modules -->
+    <script type="module" src="${basedir}/src/main/webapp/js/manifests.js"></script>
+    <script type="module" src="${basedir}/src/test/javascript/manifests.test.js"></script>
+  </body>
+</html>
