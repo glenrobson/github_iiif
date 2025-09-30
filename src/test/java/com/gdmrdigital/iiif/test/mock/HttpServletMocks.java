@@ -97,14 +97,28 @@ public class HttpServletMocks {
         PrintWriter writer = new PrintWriter(pWriter);
         when(tResponse.getWriter()).thenReturn(writer);
 
+        int tStatus = 0;
         Map<String,Object> tValues = new HashMap<String,Object>();
+        when(tResponse.setStatus(final int pStatus)).thenAnswer(new Answer() {
+            /**
+             * @see org.mockito.stubbing.Answer#answer(org.mockito.invocation.InvocationOnMock)
+             */
+            @Override
+            public Object answer(InvocationOnMock aInvocation) throws Throwable {
+
+            }
+        });
         when(tResponse.getStatus()).thenAnswer(new Answer() {
             /**
              * @see org.mockito.stubbing.Answer#answer(org.mockito.invocation.InvocationOnMock)
              */
             @Override
             public Object answer(InvocationOnMock aInvocation) throws Throwable {
-                return (int)tValues.get("status");
+                if (tValues.containsKey("status") && tValues.get("status") != null) {
+                    return (int)tValues.get("status");
+                } else {
+                    return tResponse.getStatus();
+                }
             }
         });
 
