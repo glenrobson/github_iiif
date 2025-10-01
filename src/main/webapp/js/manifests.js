@@ -1,3 +1,5 @@
+import { upgrade } from "https://cdn.jsdelivr.net/npm/@iiif/parser@2.2.4/dist/upgrader.js";
+
 function showManifestsFrom(project) {
     $.ajax({
         url: '/iiif/' + project + '/manifests/collection.json',
@@ -12,6 +14,8 @@ function showManifestsFrom(project) {
     });
 
 }
+// publish to global
+window.showManifestsFrom = showManifestsFrom;
 
 function showNoManifests() {
     var div = document.getElementById('manifests_div');
@@ -38,7 +42,7 @@ function findValue(parentnode, key) {
 }
 
 function showManifest(manifest, retrieved) {
-    manifest = IIIFUpgrader.upgrade(manifest);
+    manifest = upgrade(manifest);
     let manifestDiv = document.getElementById('manifests_div');
     let ul = null;
     if (manifestDiv.children.length != 1) {
@@ -74,21 +78,21 @@ function showManifest(manifest, retrieved) {
               }
             });
 
-    openImg = document.createElement("a");
+    let openImg = document.createElement("a");
     //openImg.href = "view.xhtml?collection=" + activeCollection["@id"] + "&manifest=" + manifest["@id"];</option>
     openImg.className = "align-self-center";
     openImg.appendChild(img);
 
-    mediaHeaderDiv= document.createElement("div");
+    let mediaHeaderDiv= document.createElement("div");
     mediaHeaderDiv.className = "media-header-div";
 
-    mediaBody = document.createElement("div");
+    let mediaBody = document.createElement("div");
     mediaBody.className = "media-body";
 
-    mediaHeader = document.createElement("div");
+    let mediaHeader = document.createElement("div");
     mediaHeader.className = "media-heading";
 
-    heading = document.createElement("h5");
+    let heading = document.createElement("h5");
     mediaHeader.appendChild(heading);
     if ('label' in manifest && manifest.label) {
         heading.innerHTML = VaultHelpers.getValue(manifest.label);
@@ -98,7 +102,7 @@ function showManifest(manifest, retrieved) {
     //mediaBody.appendChild(mediaHeader);
 
     if ('summary' in manifest && manifest.summary) {
-        mediaContent = document.createElement("p");
+        let mediaContent = document.createElement("p");
         mediaContent.className = "";
         mediaContent.name = "description";
         mediaContent.innerHTML = VaultHelpers.getValue(manifest.summary);
@@ -106,16 +110,16 @@ function showManifest(manifest, retrieved) {
     }
 
     if ('requiredStatement' in manifest && manifest.requiredStatement && manifest.requiredStatement.value) {
-        var attribution = VaultHelpers.getValue(manifest.requiredStatement.value);
+        let attribution = VaultHelpers.getValue(manifest.requiredStatement.value);
 
-        mediaContent = document.createElement("p");
+        let mediaContent = document.createElement("p");
         mediaContent.className = "";
         mediaContent.name = "attribution"
         mediaContent.innerHTML = attribution;
         mediaBody.appendChild(mediaContent);
     }
 
-    actionsBar = document.createElement("div");
+    let actionsBar = document.createElement("div");
     actionsBar.id = "actionBar";
     mediaBody.appendChild(actionsBar);
 
@@ -131,7 +135,7 @@ function showManifest(manifest, retrieved) {
         let path = urlSplit.splice(4).join('/');
 
         // https://github.com/iiif-test/test3/edit/main/manifests/manifest2.json
-        edit = document.createElement("a");
+        let edit = document.createElement("a");
         edit.href = "https://github.com/" + user + "/" + repo + "/edit/main/" + path;
         edit.className = "btn  btn-secondary mb-2";
         edit.innerHTML = '<i class="far fa-edit"></i>';//"Open";
@@ -139,7 +143,7 @@ function showManifest(manifest, retrieved) {
         edit.target = "_blank"
         actionsBar.appendChild(edit);
 
-        replace = document.createElement("a");
+        let replace = document.createElement("a");
         replace.className = "btn btn-secondary mb-2";
         replace.innerHTML = '<i class="fas fa-file-upload"></i>';
         replace.title = "Replace Manifest";
@@ -150,7 +154,7 @@ function showManifest(manifest, retrieved) {
         });
         actionsBar.appendChild(replace);
 
-        remove = document.createElement("a");
+        let remove = document.createElement("a");
         remove.className = "btn  btn-secondary mb-2";
         remove.innerHTML = "<i class='far fa-trash-alt'></i>";
         remove.title = "Remove manifest";
@@ -161,7 +165,7 @@ function showManifest(manifest, retrieved) {
 
         // https://iiif-test.github.io/test3//manifests/manifest2.json
         // https://github.com/iiif-test/test3/tree/main/manifests
-        GitHub = document.createElement("a");
+        let GitHub = document.createElement("a");
         GitHub.href = "https://github.com/" + user + "/" + repo + "/tree/main/" + path;
         GitHub.className = "btn btn-secondary mb-2";
         GitHub.innerHTML = '<img class="logo_button" src="/images/GitHub-logo-light.png"/>';
@@ -169,7 +173,7 @@ function showManifest(manifest, retrieved) {
         GitHub.target = "_blank"
         actionsBar.appendChild(GitHub);
     }
-    mirador = document.createElement("a");
+    let mirador = document.createElement("a");
     mirador.className = "btn btn-secondary mb-2";
     if (retrieved) {
         mirador.href = "https://projectmirador.org/embed/?iiif-content=" +  manifest.id;
@@ -182,7 +186,7 @@ function showManifest(manifest, retrieved) {
     }
     actionsBar.appendChild(mirador);
 
-    uv = document.createElement("a");
+    let uv = document.createElement("a");
     uv.className = "btn btn-secondary mb-2";
     if (retrieved) {
         uv.href = "http://universalviewer.io/examples/#?c=&m=&s=&cv=&manifest=" +  manifest.id;
@@ -218,7 +222,7 @@ function showManifest(manifest, retrieved) {
    // mediaBody.appendChild(remove);
     //mediaBody.appendChild(mediaHeader);
 
-    cardDiv = document.createElement("div");
+    let cardDiv = document.createElement("div");
     cardDiv.className = "media";
     cardDiv.appendChild(openImg);
     cardDiv.appendChild(mediaBody);

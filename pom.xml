@@ -249,6 +249,8 @@
                 <configuration>
                     <!-- configuration properties will go here -->
                     <debug>true</debug>
+                    <!-- Use your own runner HTML -->
+                    <customRunnerTemplate>${project.basedir}/src/test/resources/_SpecRunner.html</customRunnerTemplate>
                     <jsSrcDir>${basedir}/src/main/webapp/js</jsSrcDir>
                     <jsTestSrcDir>${basedir}/src/test/javascript</jsTestSrcDir>
                     <webDriverClassName>org.openqa.selenium.chrome.ChromeDriver</webDriverClassName>
@@ -260,7 +262,6 @@
                         <source>jasmine-jquery-2.1.1.js</source>
                         <source>https://pkg.csb.dev/IIIF-Commons/vault-helpers/commit/a8d96591/@iiif/vault-helpers/dist/index.umd.js</source>
                         <source>https://cdn.jsdelivr.net/npm/@iiif/parser@latest/dist/index.umd.js</source>
-                        <source>https://cdn.jsdelivr.net/npm/@iiif/parser@latest/dist/upgrader/index.umd.js</source>
                     </preloadSources>
                 </configuration>
             </plugin>
