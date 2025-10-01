@@ -15,6 +15,16 @@ import java.util.Map;
 
 import java.io.IOException;
 import java.io.File;
+import java.util.HashMap;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+
+import com.gdmrdigital.iiif.test.mock.MockContentService;
+import com.gdmrdigital.iiif.test.mock.MockRepo;
+import com.gdmrdigital.iiif.test.mock.MockRepositoryService;
+import com.gdmrdigital.iiif.test.mock.HttpServletMocks;
 
 import com.github.jsonldjava.utils.JsonUtils;
 
@@ -59,6 +69,24 @@ public class TestUtils {
         tUser.setName(pId);
         tUser.setLogin(pId);
         return tUser;
+    }
+
+    protected void copyFile(final String pSource, final String pTarget) throws IOException {
+        Path source = Path.of(pSource);
+        Path target = Path.of(pTarget);
+        
+        // Copy file, replacing the target file if it exists
+        Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+    }
+    
+    protected MockRepo setupRepoService(final File pTestDir) {
+        MockRepo tRepoService = new MockRepo();
+        Map<String, Object> tSession = new HashMap<String, Object>();
+        tRepoService.setSession(HttpServletMocks.createSession(tSession, this.createRepo("project", "user")));
+        tRepoService.setContentService(new MockContentService(pTestDir));
+        tRepoService.setRepositoryService(new MockRepositoryService(pTestDir));
+
+        return tRepoService; 
     }
 
     @Rule

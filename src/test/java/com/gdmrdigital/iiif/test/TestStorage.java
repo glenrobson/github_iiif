@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -16,10 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.client.RequestException;
 import com.gdmrdigital.iiif.model.github.RepositoryPath;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Base64;
 
 import java.net.URL;
 
@@ -150,6 +153,9 @@ public class TestStorage extends TestUtils {
         assertNotNull("Should have found repo", tRepoObj);
         assertTrue("Github actions should have been added once the project noted it wasn't present", new File(tTestDir, "user/project/.github/workflows/convert_images.yml").exists());
     }
+
+
+   
 
 
     // If an image is inProcess type but not actually in process then we shouldn't remove it...

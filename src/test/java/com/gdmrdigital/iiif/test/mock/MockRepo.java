@@ -7,6 +7,8 @@ import com.gdmrdigital.iiif.model.iiif.Manifest;
 
 import java.net.URL;
 
+import javax.servlet.http.HttpSession;
+
 import org.eclipse.egit.github.core.Repository;
 
 import java.io.IOException;

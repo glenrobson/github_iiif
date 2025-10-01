@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import org.eclipse.egit.github.core.Repository;
@@ -30,6 +31,7 @@ import com.gdmrdigital.iiif.processor.ImageProcessor;
 import com.gdmrdigital.iiif.processor.ImageProcessor.Status;
 import com.gdmrdigital.iiif.controllers.Repo;
 import com.gdmrdigital.iiif.model.iiif.Manifest;
+import com.gdmrdigital.iiif.model.github.RepositoryPath;
 import com.gdmrdigital.iiif.model.iiif.Collection;
 import com.gdmrdigital.iiif.model.iiif.Layer;
 import com.gdmrdigital.iiif.model.iiif.InProgressCanvas;
@@ -220,4 +222,57 @@ public class TestServlets extends TestUtils {
         assertFalse("Stored annotations collection should not have the annotation list we removed", tAnnos.hasAnnotationList(tLoadedAnnos)); 
     }
 
+
+
+    /**
+     * Test uploading an image that already exists
+     */
+    @Test
+    public void testDuplicate() throws IOException, ServletException {
+        File tTestDir = super.newFolder("user/project");
+        new File(tTestDir, "images/uploads/2").mkdirs();
+        File tTestImage = new File(tTestDir, "images/uploads/2/sa.jpg");
+        this.copyFile(super.getClass().getResource("/img/sa.jpg").getPath(), tTestImage.getPath());
+        System.out.println("Path to image "+ tTestImage.getPath());
+
+        MockRepo tRepoService = this.setupRepoService(tTestDir.getParentFile().getParentFile());
+        Repository tRepoObj = tRepoService.getRepo("project");
+
+        Map<String,Object> tSession = new HashMap<String, Object>();
+
+        Map<String,Object> tParams = new HashMap<String, Object>();
+        tParams.put("id","sa.jpg");
+        tParams.put("version","2.x");
+        tParams.put("repo", tRepoObj.getName());
+
+        String tURL = "/tiler/" + tRepoObj.getName();
+        HttpServletRequest tRequest = HttpServletMocks.createRequest(tURL, "POST", tParams, HttpServletMocks.createSession(tSession, tRepoObj));
+
+        Part tFilePart = mock(Part.class);
+        when(tFilePart.getInputStream()).thenReturn(new FileInputStream(super.getClass().getResource("/img/sa.jpg").getFile()));
+        when(tRequest.getPart(anyString())).thenReturn(tFilePart);
+        when(tFilePart.getSubmittedFileName()).thenReturn("sa.jpg");
+        when(tFilePart.getSize()).thenReturn((long)tTestImage.length());
+
+        StringWriter tWriter = new StringWriter();
+        HttpServletResponse tResp = HttpServletMocks.createResponse(tWriter);
+
+        ImageTiler tUploadServlet = new ImageTiler() {
+            @Override
+            protected Repo getRepoService() {
+                return tRepoService;
+            }
+            
+        };
+
+        tUploadServlet.service(tRequest, tResp);
+
+        assertEquals("Expected 400 error for duplicate image",400, tResp.getStatus());
+
+        System.out.println(tResp.toString());
+    }
+
+    /**
+     * Test uploading an image that exists as a v2 as a v3
+     */
 }
