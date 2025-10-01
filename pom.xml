@@ -249,7 +249,8 @@
                 <configuration>
                     <!-- configuration properties will go here -->
                     <debug>true</debug>
-                    <specRunnerTemplate>src/test/resources/_SpecRunner.html</specRunnerTemplate>
+                    <!-- Use your own runner HTML -->
+                    <customRunnerTemplate>${project.basedir}/src/test/resources/_SpecRunner.html</customRunnerTemplate>
                     <jsSrcDir>${basedir}/src/main/webapp/js</jsSrcDir>
                     <jsTestSrcDir>${basedir}/src/test/javascript</jsTestSrcDir>
                     <webDriverClassName>org.openqa.selenium.chrome.ChromeDriver</webDriverClassName>
