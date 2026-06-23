@@ -144,7 +144,7 @@ describe("V2 Manifest", function() {
 
     let uv = getElementsByTitle(manifest_div, "View in Universal Viewer");
     it("Checking UV link", function() {
-        expect(uv.href).toBe("http://universalviewer.io/examples/#?c=&m=&s=&cv=&manifest=https://iiif-test.github.io/Presentation2023/manifests/manifest-combined.json");
+        expect(uv.href).toBe("https://uv-v4.netlify.app/#?manifest=https://iiif-test.github.io/Presentation2023/manifests/manifest-combined.json");
     });
 
     let logo = getElementsByClassName(manifest_div, "logo");
@@ -205,7 +205,7 @@ describe("V3 Manifest", function() {
 
     let uv = getElementsByTitle(manifest_div, "View in Universal Viewer");
     it("Checking UV link", function() {
-        expect(uv.href).toBe("http://universalviewer.io/examples/#?c=&m=&s=&cv=&manifest=https://iiif-test.github.io/test2/images/manifest_v3.json");
+        expect(uv.href).toBe("https://uv-v4.netlify.app/#?manifest=https://iiif-test.github.io/test2/images/manifest_v3.json");
     });
 
     let logo = getElementsByClassName(manifest_div, "logo");
