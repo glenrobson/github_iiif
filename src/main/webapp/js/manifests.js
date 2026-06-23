@@ -189,7 +189,7 @@ function showManifest(manifest, retrieved) {
     let uv = document.createElement("a");
     uv.className = "btn btn-secondary mb-2";
     if (retrieved) {
-        uv.href = "http://universalviewer.io/examples/#?c=&m=&s=&cv=&manifest=" +  manifest.id;
+        uv.href = "https://uv-v4.netlify.app/#?manifest=" +  manifest.id;
         uv.innerHTML = '<img class="logo_button" src="/images/uv-logo.png"/>';
         uv.title = "View in Universal Viewer";
         uv.target = "_blank"

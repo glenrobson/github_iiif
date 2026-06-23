@@ -33,7 +33,7 @@
 {% for file in manifests %}
  * [{{ file.path | replace: "/manifests/", ""}}]({{ file.path | absolute_url }}) 
     * [View in Mirador](https://projectmirador.org/embed/?iiif-content={{ file.path | absolute_url}})
-    * [View in UV](http://universalviewer.io/examples/#?c=&m=&s=&cv=&manifest={{ file.path | absolute_url}})
+    * [View in UV](https://uv-v4.netlify.app/#?manifest={{ file.path | absolute_url}})
 {% endfor %}
 
 ### Annotations
