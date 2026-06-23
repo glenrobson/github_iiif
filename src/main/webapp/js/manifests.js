@@ -16,6 +16,7 @@ function showManifestsFrom(project) {
 }
 // publish to global
 window.showManifestsFrom = showManifestsFrom;
+window.showManifest = showManifest;
 
 function showNoManifests() {
     var div = document.getElementById('manifests_div');
