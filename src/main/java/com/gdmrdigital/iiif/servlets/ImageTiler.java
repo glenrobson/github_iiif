@@ -32,6 +32,7 @@ import com.gdmrdigital.iiif.model.iiif.Manifest;
 import com.gdmrdigital.iiif.Config;
 
 import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.client.RequestException;
 
 import com.github.jsonldjava.utils.JsonUtils;
 
@@ -98,48 +99,58 @@ public class ImageTiler extends JSONServlet {
         byte imageData[] = new byte[(int)fileSize];
         tFilePart.getInputStream().read(imageData);
         String base64Image = Base64.getEncoder().encodeToString(imageData);
-        System.out.println("Base64");
-        System.out.println(base64Image);
-        System.out.println(tPath);
-        tRepo.uploadEncodedFile(tPath, base64Image);
+        try {
+            tRepo.uploadEncodedFile(tPath, base64Image);
 
-        UserService tService = new UserService(req.getSession());
+            UserService tService = new UserService(req.getSession());
 
-        ImageProcessor tProcessor = new ImageProcessor();
-        StringBuffer tBuffer = new StringBuffer("https://");
-        tBuffer.append(tService.getUser().getLogin());
-        tBuffer.append(".github.io/");
-        tBuffer.append(tRepoName);
-        tBuffer.append("/images/");
+            ImageProcessor tProcessor = new ImageProcessor();
+            StringBuffer tBuffer = new StringBuffer("https://");
+            tBuffer.append(tService.getUser().getLogin());
+            tBuffer.append(".github.io/");
+            tBuffer.append(tRepoName);
+            tBuffer.append("/images/");
 
-        // filename without extension
-        String name = "";
-        if (filename == null || filename.lastIndexOf(".") == -1) {
-            name = filename;
-        } else {
-            name = filename.substring(0, filename.lastIndexOf("."));
+            // filename without extension
+            String name = "";
+            if (filename == null || filename.lastIndexOf(".") == -1) {
+                name = filename;
+            } else {
+                name = filename.substring(0, filename.lastIndexOf("."));
+            }
+
+            tBuffer.append(name);
+
+            URL tInfoJson = new URL(tBuffer.toString());
+            System.out.println("Created info.json: " + tInfoJson);
+
+            tProcessor.setInfoURL(tInfoJson);
+            tProcessor.setRepoControl(tRepo);
+
+            tProcessor.setRepo(tRepoObj);
+
+            // ... // Update file information (status: new => stored) in DB.
+            //log.info("ID: " + tId + ", version: " + tVersion + " File uploaded to: " + tImageFile.getPath());
+            Map<String, Object> tResponse = new HashMap<String,Object>();
+            tResponse.put("process_id", tProcessor.getIdentifier());
+            tResponse.put("status", "UPLOADED");
+
+            Manifest tImages = tRepo.getImages(tRepoObj);
+            // addInProcess(final String pProccessId, final URL pInfoJson, final String pLabel)
+            tImages.addInProcess(tProcessor.getIdentifier(), tInfoJson, tId);
+            sendJson(resp, 200, tImages.toJson());
+        } catch (RequestException tExcpt) {
+            if (tExcpt.getMessage().indexOf("For 'properties/sha', nil is not a string") != -1) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Image with same filename already exists in this project.");
+            } else {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to upload image due to " + tExcpt.getMessage());
+            }    
+            return;
+        } catch (IOException tExcpt) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to upload image due to " + tExcpt.getMessage());
+            tExcpt.printStackTrace();
+            return;
         }
-
-        tBuffer.append(name);
-
-        URL tInfoJson = new URL(tBuffer.toString());
-        System.out.println("Created info.json: " + tInfoJson);
-
-        tProcessor.setInfoURL(tInfoJson);
-        tProcessor.setRepoControl(tRepo);
-
-        tProcessor.setRepo(tRepoObj);
-
-        // ... // Update file information (status: new => stored) in DB.
-        //log.info("ID: " + tId + ", version: " + tVersion + " File uploaded to: " + tImageFile.getPath());
-        Map<String, Object> tResponse = new HashMap<String,Object>();
-        tResponse.put("process_id", tProcessor.getIdentifier());
-        tResponse.put("status", "UPLOADED");
-
-        Manifest tImages = tRepo.getImages(tRepoObj);
-        // addInProcess(final String pProccessId, final URL pInfoJson, final String pLabel)
-        tImages.addInProcess(tProcessor.getIdentifier(), tInfoJson, tId);
-        sendJson(resp, 200, tImages.toJson());
     }
 }
 

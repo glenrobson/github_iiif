@@ -8,6 +8,7 @@ import org.eclipse.egit.github.core.RepositoryContents;
 import org.eclipse.egit.github.core.IRepositoryIdProvider;
 import org.eclipse.egit.github.core.client.RequestException;
 import org.eclipse.egit.github.core.RequestError;
+import org.eclipse.egit.github.core.RequestError;
 
 import static org.mockito.Mockito.*;
 
@@ -58,14 +59,24 @@ public class MockContentService extends ExtendedContentService {
 
     public ContentResponse setContents(final IRepositoryIdProvider pRepo, final RepositoryContents pContent, final String pMessage) throws IOException {
         File toAdd = new File(_dir, pRepo.generateId() + "/" + pContent.getPath() + "/" + pContent.getName());
-        _logger.debug("Writing to File: {}, Repo {}, Path: {}", toAdd, pRepo.generateId(), pContent.getPath());
-        toAdd.getParentFile().mkdirs();
+        System.out.println("File " + toAdd + " exists: " + toAdd.exists());
+        if (toAdd.exists()){
+            // Throw exception 
+            throw new RequestException(new RequestError() {
+                public String getMessage() {
+                    return "For 'properties/sha', nil is not a string.";
+                }
+            }, 422);
+        } else {
+            _logger.debug("Writing to File: {}, Repo {}, Path: {}", toAdd, pRepo.generateId(), pContent.getPath());
+            toAdd.getParentFile().mkdirs();
 
-        PrintWriter tWriter = new PrintWriter(toAdd);
-        tWriter.println(Repo.decode(pContent.getContent()));
+            PrintWriter tWriter = new PrintWriter(toAdd);
+            tWriter.println(Repo.decode(pContent.getContent()));
 
-        tWriter.flush();
-        tWriter.close();
+            tWriter.flush();
+            tWriter.close();
+        }    
 
         return null;
     }
