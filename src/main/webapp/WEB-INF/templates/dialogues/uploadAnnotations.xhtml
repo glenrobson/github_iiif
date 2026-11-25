@@ -41,7 +41,8 @@
             var button = document.getElementById('upload_annotations');
 
             function loadAnnotations(data) {
-                showAnnotation(data['@id'], false);
+                const id = data.id ?? data['@id'];
+                showAnnotation(id, false);
                 $('#annotationsUpload').modal('hide');
             }
 
